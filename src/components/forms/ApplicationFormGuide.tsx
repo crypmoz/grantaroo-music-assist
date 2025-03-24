@@ -1,213 +1,178 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useChatbot } from "@/context/ChatbotContext";
-import { Upload, ArrowRight, ArrowLeft, Save } from "lucide-react";
+import { CheckCircle, Copy, Download, LightbulbIcon } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
-// Sample application sections for demo purposes
-const applicationSections = [
+const FORM_SECTIONS = [
   {
     id: "project-summary",
-    label: "Project Summary",
-    description: "Provide a clear, concise overview of your project (150-250 words)",
-    tips: [
-      "Be specific about what you want to accomplish",
-      "Highlight what makes your project unique",
-      "Mention the intended audience/community impact",
-      "Connect your project to the grant's objectives"
-    ],
-    examples: "Our album 'Urban Melodies' will explore the intersection of jazz and electronic music, creating an immersive sonic experience that reflects Toronto's diverse musical landscape. The project includes studio recording of 8 original compositions, collaborating with 5 local musicians, and will culminate in a release concert at the Rivoli."
+    title: "Project Summary",
+    description: "A concise overview of your music project."
   },
   {
     id: "artist-background",
-    label: "Artist Background",
-    description: "Describe your musical background, achievements, and career trajectory (200-300 words)",
-    tips: [
-      "Highlight relevant experience and training",
-      "Mention notable performances or releases",
-      "Include awards, press coverage, or critical reception",
-      "Explain how this project fits into your artistic development"
-    ],
-    examples: "With over 5 years in Toronto's indie scene, I've released two EPs that received coverage in NOW Magazine and CBC Radio. My 2022 EP 'Northbound' reached 100,000+ streams and led to performances at NXNE and Canadian Music Week. This project represents my transition to a fuller ensemble sound, building on my established audience while pushing my artistic boundaries."
+    title: "Artist Background",
+    description: "Your musical history, accomplishments, and career trajectory."
+  },
+  {
+    id: "project-timeline",
+    title: "Project Timeline",
+    description: "Key milestones and deadlines for your project."
   },
   {
     id: "budget",
-    label: "Budget",
-    description: "Provide a detailed breakdown of project expenses and revenue sources",
-    tips: [
-      "Include quotes from service providers when possible",
-      "Be realistic and detailed about all costs",
-      "Ensure budget items align with project description",
-      "Include both confirmed and anticipated funding sources",
-      "Reflect fair compensation for all artists involved"
-    ],
-    examples: "Studio recording (10 days @ $500/day): $5,000\nMusician fees (5 musicians): $3,500\nMixing and mastering: $2,000\nAlbum artwork and design: $1,200\nDigital distribution: $300\nMarketing and promotion: $1,000\nTOTAL: $13,000"
+    title: "Budget Breakdown",
+    description: "Detailed allocation of funds for your project."
   },
   {
-    id: "timeline",
-    label: "Project Timeline",
-    description: "Outline the schedule for your project, from pre-production to completion",
-    tips: [
-      "Include specific dates or months for key milestones",
-      "Account for potential delays",
-      "Include pre-production, production, and post-production phases",
-      "Include marketing and release plans"
-    ],
-    examples: "June-July 2024: Pre-production, finalize arrangements\nAugust 2024: Studio recording sessions\nSeptember 2024: Mixing and mastering\nOctober 2024: Artwork and promotional materials\nNovember 2024: Digital release and promotion\nDecember 2024: Release concert at The Great Hall"
-  },
-  {
-    id: "supporting-materials",
-    label: "Supporting Materials",
-    description: "Upload samples of your previous work, press coverage, or other relevant documents",
-    tips: [
-      "Include your strongest work samples",
-      "Provide context for each supporting document",
-      "Ensure files meet the technical requirements (format, size)",
-      "Include press coverage or testimonials if available"
-    ],
-    examples: "1. Demo recording of two tracks from the proposed album\n2. Press clippings from NOW Magazine interview\n3. Video of recent live performance\n4. Letter of support from venue partner\n5. Music CV with detailed performance history"
+    id: "impact",
+    title: "Expected Impact",
+    description: "How this project will advance your career and contribute to the music community."
   }
 ];
 
 export const ApplicationFormGuide = () => {
-  const { addMessage } = useChatbot();
+  const { addMessage, successfulAppData } = useChatbot();
   const [activeTab, setActiveTab] = useState("project-summary");
-  const [formContent, setFormContent] = useState<Record<string, string>>({});
   
-  const activeSection = applicationSections.find(section => section.id === activeTab);
-  const currentIndex = applicationSections.findIndex(section => section.id === activeTab);
-  
-  const handleNext = () => {
-    if (currentIndex < applicationSections.length - 1) {
-      setActiveTab(applicationSections[currentIndex + 1].id);
-    }
-  };
-  
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setActiveTab(applicationSections[currentIndex - 1].id);
-    }
-  };
-  
-  const handleContentChange = (content: string) => {
-    setFormContent(prev => ({
-      ...prev,
-      [activeTab]: content
-    }));
-  };
-  
-  const handleSaveProgress = () => {
-    // In a real app, this would save to a database
-    toast.success("Progress saved successfully!");
+  const getSectionAdvice = (sectionId: string) => {
+    // Base advice for each section
+    const baseAdvice = {
+      "project-summary": "Keep your summary brief (150-250 words) and compelling. Clearly state what you're creating, why it matters, and how the grant will help achieve your goals.",
+      "artist-background": "Highlight relevant achievements that demonstrate your ability to complete this project. Include streaming numbers, press coverage, previous grants, and collaborations.",
+      "project-timeline": "Create a realistic schedule with clear milestones. Show that you've thought through each phase of the project and allocated sufficient time.",
+      "budget": "Be detailed and realistic. Include quotes from professionals where possible. Ensure the grant request aligns with the program's funding limits.",
+      "impact": "Discuss both personal career advancement and broader community benefit. How will this project help you reach new audiences or contribute to the local music scene?"
+    };
     
-    addMessage(`I've completed the ${activeSection?.label} section of my application.`, "user");
+    // If we have success factors from real applications, incorporate them
+    if (successfulAppData.appliedFactors.length > 0) {
+      // Filter success factors relevant to this section
+      const relevantFactors = filterRelevantFactors(sectionId, successfulAppData.appliedFactors);
+      
+      if (relevantFactors.length > 0) {
+        return `${baseAdvice[sectionId as keyof typeof baseAdvice]}\n\n**Tips from successful applications:**\n${relevantFactors.map(f => `• ${f}`).join('\n')}`;
+      }
+    }
+    
+    return baseAdvice[sectionId as keyof typeof baseAdvice];
+  };
+  
+  const filterRelevantFactors = (sectionId: string, factors: string[]) => {
+    // Map section IDs to keywords to match against success factors
+    const sectionKeywords: Record<string, string[]> = {
+      "project-summary": ["vision", "audience", "clear", "concept", "idea", "purpose"],
+      "artist-background": ["previous", "experience", "background", "track record", "history"],
+      "project-timeline": ["timeline", "milestone", "schedule", "realistic", "plan"],
+      "budget": ["budget", "cost", "financial", "fund", "allocation", "payment"],
+      "impact": ["impact", "community", "audience", "outreach", "benefit", "engagement"]
+    };
+    
+    // Filter factors that contain any of the keywords for this section
+    return factors.filter(factor => 
+      sectionKeywords[sectionId]?.some(keyword => 
+        factor.toLowerCase().includes(keyword.toLowerCase())
+      )
+    );
+  };
+  
+  const handleGetAdvice = () => {
+    const advice = getSectionAdvice(activeTab);
+    addMessage(`I need help with the ${FORM_SECTIONS.find(s => s.id === activeTab)?.title} section of my application.`, "user");
     
     setTimeout(() => {
-      addMessage(`Great progress on the ${activeSection?.label}! Your content looks strong. Remember to address all the key points from the guidelines before finalizing.`, "bot");
+      addMessage(`Here's guidance for your **${FORM_SECTIONS.find(s => s.id === activeTab)?.title}** section:\n\n${advice}`, "bot");
     }, 500);
   };
   
-  const handleUpload = () => {
-    // In a real app, this would trigger a file upload
-    toast.success("File uploaded successfully!");
+  const handleCopyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
   };
-
+  
   return (
-    <div className="p-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 mb-4">
-          {applicationSections.map(section => (
-            <TabsTrigger 
-              key={section.id} 
-              value={section.id}
-              className="text-xs md:text-sm"
-            >
-              {section.label}
+    <div className="space-y-4 p-2">
+      <h3 className="text-lg font-medium flex items-center gap-2">
+        Grant Application Guide
+        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+          AI-Powered
+        </span>
+      </h3>
+      
+      <Tabs defaultValue="project-summary" className="w-full" onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-4">
+          {FORM_SECTIONS.map((section) => (
+            <TabsTrigger key={section.id} value={section.id} className="text-xs">
+              {section.title}
             </TabsTrigger>
           ))}
         </TabsList>
         
-        {applicationSections.map(section => (
-          <TabsContent key={section.id} value={section.id} className="space-y-4">
-            <h3 className="text-lg font-medium">{section.label}</h3>
-            <p className="text-sm text-muted-foreground">
-              {section.description}
-            </p>
-            
-            <Card className="bg-secondary/50">
-              <CardContent className="pt-6">
-                <h4 className="font-medium mb-2">Writing Tips</h4>
-                <ul className="list-disc list-inside text-sm space-y-1">
-                  {section.tips.map((tip, index) => (
-                    <li key={index}>{tip}</li>
-                  ))}
-                </ul>
+        {FORM_SECTIONS.map((section) => (
+          <TabsContent key={section.id} value={section.id} className="mt-0">
+            <Card className="p-4">
+              <h4 className="font-medium">{section.title}</h4>
+              <p className="text-sm text-muted-foreground mb-2">{section.description}</p>
+              
+              <div className="flex flex-wrap gap-2 mt-4">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  onClick={handleGetAdvice}
+                >
+                  <LightbulbIcon className="h-4 w-4" />
+                  Get Expert Advice
+                </Button>
                 
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2">Example</h4>
-                  <p className="text-sm bg-background p-3 rounded-md whitespace-pre-wrap">
-                    {section.examples}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {section.id === "supporting-materials" ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-600">
-                  Drag and drop files, or click to upload
-                </p>
-                <Button onClick={handleUpload} variant="outline" className="mt-4">
-                  Upload Files
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => {
+                    addMessage(`Can you provide a template for the ${section.title} section?`, "user");
+                  }}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Request Template
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => handleCopyText(getSectionAdvice(section.id))}
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy Guidelines
                 </Button>
               </div>
-            ) : (
-              <Textarea
-                value={formContent[section.id] || ""}
-                onChange={(e) => handleContentChange(e.target.value)}
-                placeholder={`Write your ${section.label.toLowerCase()} here...`}
-                className="min-h-[200px]"
-              />
-            )}
+              
+              {successfulAppData.appliedFactors.length > 0 && filterRelevantFactors(section.id, successfulAppData.appliedFactors).length > 0 && (
+                <div className="mt-4 p-3 bg-green-50 rounded-md border border-green-100">
+                  <p className="text-sm font-medium text-green-800 flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3" />
+                    Success Insights Available
+                  </p>
+                  <p className="text-xs text-green-700 mt-1">
+                    This section has insights from successful applications
+                  </p>
+                </div>
+              )}
+            </Card>
           </TabsContent>
         ))}
       </Tabs>
       
-      <div className="flex justify-between mt-6">
-        <Button
-          variant="outline"
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Previous
-        </Button>
-        
-        <Button
-          onClick={handleSaveProgress}
-          variant="secondary"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          Save Progress
-        </Button>
-        
-        <Button
-          onClick={handleNext}
-          disabled={currentIndex === applicationSections.length - 1}
-        >
-          Next
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+      <div className="rounded-md bg-secondary/50 p-3 text-sm">
+        <p className="font-medium">Need more help?</p>
+        <p className="text-muted-foreground text-xs mt-1">
+          Ask the grant assistant for specific guidance or feedback on your draft content.
+        </p>
       </div>
     </div>
   );

@@ -27,6 +27,11 @@ export type UserProfile = {
   projectBudget: string;
 };
 
+export type SuccessfulApplicationData = {
+  appliedFactors: string[];
+  isShowingExamples: boolean;
+};
+
 type ChatbotContextType = {
   messages: MessageType[];
   addMessage: (content: string, sender: "user" | "bot") => void;
@@ -39,6 +44,8 @@ type ChatbotContextType = {
   setUserProfile: (profile: UserProfile) => void;
   currentStep: string;
   setCurrentStep: (step: string) => void;
+  successfulAppData: SuccessfulApplicationData;
+  setSuccessfulAppData: (data: SuccessfulApplicationData) => void;
 };
 
 const ChatbotContext = createContext<ChatbotContextType | undefined>(undefined);
@@ -49,6 +56,10 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [suggestedGrants, setSuggestedGrants] = useState<GrantType[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [currentStep, setCurrentStep] = useState<string>("welcome");
+  const [successfulAppData, setSuccessfulAppData] = useState<SuccessfulApplicationData>({
+    appliedFactors: [],
+    isShowingExamples: false
+  });
 
   const addMessage = (content: string, sender: "user" | "bot") => {
     const newMessage = {
@@ -78,6 +89,8 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
         setUserProfile,
         currentStep,
         setCurrentStep,
+        successfulAppData,
+        setSuccessfulAppData,
       }}
     >
       {children}

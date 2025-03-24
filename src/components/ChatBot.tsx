@@ -9,13 +9,13 @@ import { GrantSuggestions } from "./grants/GrantSuggestions";
 import { ApplicationFormGuide } from "./forms/ApplicationFormGuide";
 import { GrantSuccessStats } from "./analysis/GrantSuccessStats";
 import { useChatbot } from "@/context/ChatbotContext";
-import { X, Maximize, Minimize, MessageCircle, BarChart } from "lucide-react";
+import { X, Maximize, Minimize, MessageCircle, BarChart, Sparkles } from "lucide-react";
 
 export const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showStats, setShowStats] = useState(false);
-  const { messages, currentStep, addMessage } = useChatbot();
+  const { messages, currentStep, addMessage, useEnhancedAI } = useChatbot();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,9 +24,14 @@ export const ChatBot = () => {
       setTimeout(() => {
         addMessage("👋 Hi there! I'm your Toronto Music Grant Assistant. I can help you find and apply for music grants that match your profile. I'm powered by data from successful grant applications in Ontario.", "bot");
         
-        // Add a small delay before showing the first question
+        // Add a small delay before showing the enhanced AI message
         setTimeout(() => {
-          addMessage("Let me ask you a few questions to find the best grants for you.", "bot");
+          addMessage("✨ I'm now enhanced with DeepSeek AI technology to provide even more insightful grant assistance based on successful applications!", "bot");
+          
+          // Add a small delay before showing the first question
+          setTimeout(() => {
+            addMessage("Let me ask you a few questions to find the best grants for you.", "bot");
+          }, 1000);
         }, 1000);
       }, 500);
     }
@@ -74,7 +79,15 @@ export const ChatBot = () => {
     >
       <CardHeader className="p-4 pb-2 border-b">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">Grant Assistant</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            Grant Assistant
+            {useEnhancedAI && (
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Enhanced
+              </span>
+            )}
+          </CardTitle>
           <div className="flex gap-2">
             {currentStep !== "welcome" && (
               <Button
@@ -126,7 +139,7 @@ export const ChatBot = () => {
               </div>
               
               {/* Dynamic content based on current step */}
-              {currentStep === "welcome" && messages.length >= 2 && (
+              {currentStep === "welcome" && messages.length >= 3 && (
                 <GrantProfileForm />
               )}
               

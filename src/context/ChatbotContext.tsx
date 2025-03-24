@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { getDeepseekResponse } from "@/services/deepseekService";
 
 export type MessageType = {
   id: string;
@@ -46,6 +47,9 @@ type ChatbotContextType = {
   setCurrentStep: (step: string) => void;
   successfulAppData: SuccessfulApplicationData;
   setSuccessfulAppData: (data: SuccessfulApplicationData) => void;
+  useEnhancedAI: boolean;
+  setUseEnhancedAI: (use: boolean) => void;
+  getEnhancedResponse: (userMessage: string) => Promise<string>;
 };
 
 const ChatbotContext = createContext<ChatbotContextType | undefined>(undefined);
@@ -56,6 +60,7 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [suggestedGrants, setSuggestedGrants] = useState<GrantType[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [currentStep, setCurrentStep] = useState<string>("welcome");
+  const [useEnhancedAI, setUseEnhancedAI] = useState<boolean>(true); // Default to using enhanced AI
   const [successfulAppData, setSuccessfulAppData] = useState<SuccessfulApplicationData>({
     appliedFactors: [],
     isShowingExamples: false
@@ -75,6 +80,25 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
     setMessages([]);
   };
 
+  const getEnhancedResponse = async (userMessage: string): Promise<string> => {
+    if (!useEnhancedAI) {
+      return "I'd be happy to help with your grant application! What specific aspect would you like assistance with?";
+    }
+    
+    // Create context based on current state
+    let context = "You are a Toronto Music Grant Assistant. You provide expert advice on music grant applications.";
+    
+    if (userProfile) {
+      context += ` The user is a ${userProfile.careerStage} musician in the ${userProfile.genre} genre with ${userProfile.streamingNumbers} streaming numbers. They've previously received ${userProfile.previousGrants} grants. Their current project is a ${userProfile.projectType} with a budget of ${userProfile.projectBudget}.`;
+    }
+    
+    if (successfulAppData.appliedFactors.length > 0) {
+      context += ` Based on successful grant applications, these factors lead to success: ${successfulAppData.appliedFactors.join(", ")}.`;
+    }
+    
+    return getDeepseekResponse(userMessage, context);
+  };
+
   return (
     <ChatbotContext.Provider
       value={{
@@ -91,6 +115,9 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
         setCurrentStep,
         successfulAppData,
         setSuccessfulAppData,
+        useEnhancedAI,
+        setUseEnhancedAI,
+        getEnhancedResponse,
       }}
     >
       {children}

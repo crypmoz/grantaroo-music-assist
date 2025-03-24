@@ -21,6 +21,11 @@ export const ChatBot = () => {
     if (messages.length === 0) {
       setTimeout(() => {
         addMessage("👋 Hi there! I'm your Toronto Music Grant Assistant. I can help you find and apply for music grants that match your profile. Let's start by gathering some information about you and your project.", "bot");
+        
+        // Add a small delay before showing the first question
+        setTimeout(() => {
+          addMessage("Let me ask you a few questions to find the best grants for you.", "bot");
+        }, 1000);
       }, 500);
     }
   }, []);
@@ -97,7 +102,7 @@ export const ChatBot = () => {
             </div>
             
             {/* Dynamic content based on current step */}
-            {currentStep === "welcome" && messages.length > 0 && (
+            {currentStep === "welcome" && messages.length >= 2 && (
               <GrantProfileForm />
             )}
             
@@ -111,7 +116,8 @@ export const ChatBot = () => {
           </div>
         </div>
         
-        <ChatInput />
+        {/* Hide the chat input during profile form completion */}
+        {currentStep !== "welcome" && <ChatInput />}
       </CardContent>
     </Card>
   );

@@ -57,17 +57,17 @@ const Index = () => {
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
-                className="py-20 bg-gray-50"
+                className="py-20 bg-white"
               >
                 <div className="container mx-auto px-4">
-                  <div className="text-center mb-16">
+                  <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">Success Stories</h2>
                     <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                       Read how musicians across Canada have used our platform to secure funding and advance their careers.
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Success Story Cards */}
                     {[1, 2, 3].map((item) => (
                       <motion.div 
@@ -107,7 +107,7 @@ const Index = () => {
                 className="py-20 bg-blue-600 text-white"
               >
                 <div className="container mx-auto px-4">
-                  <div className="text-center mb-16">
+                  <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Impact</h2>
                     <p className="text-xl text-blue-100 max-w-3xl mx-auto">
                       We've helped musicians across Canada secure funding and advance their careers.
@@ -127,7 +127,7 @@ const Index = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: index * 0.1 }}
                         viewport={{ once: true }}
-                        className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-lg"
+                        className="bg-white/10 backdrop-blur-sm rounded-lg p-8 text-center"
                       >
                         <p className="text-4xl font-bold mb-2">{stat.number}</p>
                         <p className="text-blue-100">{stat.label}</p>

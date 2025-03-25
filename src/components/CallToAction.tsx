@@ -4,8 +4,17 @@ import { Button } from "@/components/ui/button";
 
 export const CallToAction = () => {
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-gray-100 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-20 z-0">
+        <img 
+          src="/lovable-uploads/35ab546c-bb47-4005-90f0-4bcf30b2aa99.png" 
+          alt="Musician in recording studio" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-gray-100"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}

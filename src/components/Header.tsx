@@ -1,14 +1,14 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Tag } from "lucide-react";
+import { Headphones } from "lucide-react";
 
 export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl text-primary">
-          <Tag className="h-6 w-6" />
+          <Headphones className="h-6 w-6" />
           <span>Canada Music Grant Assistant</span>
         </Link>
         

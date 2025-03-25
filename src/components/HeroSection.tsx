@@ -8,11 +8,11 @@ export const HeroSection = () => {
       {/* Hero image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/lovable-uploads/65ae9514-05d3-41c7-be2a-8c7586494a6e.png" 
+          src="/lovable-uploads/35ab546c-bb47-4005-90f0-4bcf30b2aa99.png" 
           alt="Musician in recording studio" 
-          className="w-full h-full object-cover opacity-70"
+          className="w-full h-full object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-gray-900/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-gray-900/50"></div>
       </div>
       
       <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
@@ -30,7 +30,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-blue-100 mb-8"
+            className="text-xl text-gray-100 mb-8"
           >
             Get the funding you need to take your career to the next level with our AI grant writing assistant. 
             Our AI will help you find the right grants, craft compelling applications, and increase your chances of success.

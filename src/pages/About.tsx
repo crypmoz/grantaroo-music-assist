@@ -11,7 +11,7 @@ const About = () => {
         <header className="border-b p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary">Toronto Music Grant Assistant</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-primary">Canada Music Grant Assistant</h1>
               <p className="text-muted-foreground">AI-powered grant writing for musicians</p>
             </div>
           </div>
@@ -29,7 +29,7 @@ const About = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  The Toronto Music Grant Assistant was created to democratize access to music funding 
+                  The Canada Music Grant Assistant was created to democratize access to music funding 
                   by providing musicians with AI-powered guidance through the complex grant application 
                   process. We analyze successful applications to help you craft compelling proposals.
                 </p>
@@ -45,7 +45,7 @@ const About = () => {
                 <p className="text-muted-foreground">
                   Our platform leverages artificial intelligence to analyze patterns in successful grant 
                   applications. We provide personalized guidance based on your specific project needs and 
-                  the requirements of various Toronto and Ontario music grant programs.
+                  the requirements of various Canadian music grant programs.
                 </p>
               </CardContent>
             </Card>
@@ -55,16 +55,16 @@ const About = () => {
             <h2 className="text-2xl font-bold mb-4">Our Team</h2>
             <p className="text-lg mb-6">
               We're a group of music industry professionals, grant writers, and AI specialists dedicated 
-              to helping Toronto's music community thrive through better access to funding opportunities.
+              to helping Canada's music community thrive through better access to funding opportunities.
             </p>
           </div>
           
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Our Technology</h2>
             <p className="text-lg mb-6">
-              The Toronto Music Grant Assistant combines cutting-edge AI models with a database of successful 
+              The Canada Music Grant Assistant combines cutting-edge AI models with a database of successful 
               grant applications to provide custom guidance for your music project. Our enhanced AI capabilities 
-              draw from both general grant writing expertise and specific insights from the Toronto music scene.
+              draw from both general grant writing expertise and specific insights from the Canadian music scene.
             </p>
           </div>
         </main>

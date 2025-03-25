@@ -31,15 +31,15 @@ export const availableGrants: GrantType[] = [
   {
     id: "tac-music",
     name: "Music Creation and Audio Recording",
-    provider: "Toronto Arts Council",
+    provider: "Canada Arts Council",
     deadline: "July 1, 2024",
     maxAmount: "$15,000",
     eligibility: [
-      "Toronto-based musician or ensemble",
+      "Canada-based musician or ensemble",
       "Professional artist",
       "Original music"
     ],
-    url: "https://torontoartscouncil.org/grant-programs/music-creation-and-audio-recording"
+    url: "https://canadaartscouncil.org/grant-programs/music-creation-and-audio-recording"
   },
   {
     id: "oac-recording",

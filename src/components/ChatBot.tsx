@@ -22,7 +22,7 @@ export const ChatBot = () => {
     // Send initial welcome message when component mounts
     if (messages.length === 0) {
       setTimeout(() => {
-        addMessage("👋 Hi there! I'm your Toronto Music Grant Assistant. I can help you find and apply for music grants that match your profile. I'm powered by data from successful grant applications in Ontario.", "bot");
+        addMessage("👋 Hi there! I'm your Canada Music Grant Assistant. I can help you find and apply for music grants that match your profile. I'm powered by data from successful grant applications in Canada.", "bot");
         
         // Add a small delay before showing the enhanced AI message
         setTimeout(() => {

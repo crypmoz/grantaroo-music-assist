@@ -16,7 +16,7 @@ const Index = () => {
         <header className="border-b p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary">Toronto Music Grant Assistant</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-primary">Canada Music Grant Assistant</h1>
               <p className="text-muted-foreground">AI-powered grant writing for musicians</p>
             </div>
             <div className="hidden md:block">

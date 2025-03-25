@@ -13,16 +13,16 @@ export type SuccessfulGrantApplication = {
   amountAwarded: string;
 };
 
-// Sample successful grant applications from Ontario artists
+// Sample successful grant applications from Canadian artists
 // In a real implementation, this would be fetched from an API or database
 export const successfulApplications: SuccessfulGrantApplication[] = [
   {
     id: "app-1",
     grantId: "factor-jsp",
     applicantType: "Emerging artist (0-3 years)",
-    projectDescription: "Recording of a 6-song EP exploring themes of urban life in Toronto with jazz-influenced production techniques",
+    projectDescription: "Recording of a 6-song EP exploring themes of urban life in Canada with jazz-influenced production techniques",
     budgetHighlights: "Allocated 60% to professional studio time and mixing, 20% to session musicians, 20% to marketing",
-    artistBackground: "Toronto-based indie artist with growing local following and previous EP release with 100,000+ streams",
+    artistBackground: "Canada-based indie artist with growing local following and previous EP release with 100,000+ streams",
     successFactors: [
       "Clear artistic vision with well-defined audience",
       "Realistic timeline with detailed milestones",
@@ -38,7 +38,7 @@ export const successfulApplications: SuccessfulGrantApplication[] = [
     applicantType: "Mid-career artist (3-10 years)",
     projectDescription: "Creation and recording of a cross-cultural musical collaboration between classical Western instruments and traditional Chinese music forms",
     budgetHighlights: "40% to artist fees, 35% to recording and production, 25% to community workshop series",
-    artistBackground: "Chinese-Canadian composer with two previous albums and performances at major Toronto venues",
+    artistBackground: "Chinese-Canadian composer with two previous albums and performances at major Canadian venues",
     successFactors: [
       "Strong focus on cultural expression and community engagement",
       "Clearly articulated artistic merit and innovation",

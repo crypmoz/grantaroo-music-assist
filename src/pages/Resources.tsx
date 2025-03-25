@@ -13,7 +13,7 @@ const Resources = () => {
         <header className="border-b p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary">Toronto Music Grant Assistant</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-primary">Canada Music Grant Assistant</h1>
               <p className="text-muted-foreground">AI-powered grant writing for musicians</p>
             </div>
           </div>
@@ -27,13 +27,13 @@ const Resources = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Funding Organizations</CardTitle>
-                <CardDescription>Key grant providers for Toronto musicians</CardDescription>
+                <CardDescription>Key grant providers for Canadian musicians</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-1">Toronto Arts Council</h3>
+                  <h3 className="font-semibold mb-1">Canada Arts Council</h3>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Offers project grants, operating grants, and strategic funding for Toronto-based musicians and music organizations.
+                    Offers project grants, operating grants, and strategic funding for Canadian-based musicians and music organizations.
                   </p>
                   <Button variant="outline" size="sm" className="flex items-center gap-2">
                     <ExternalLink className="h-4 w-4" /> Visit Website
@@ -91,7 +91,7 @@ const Resources = () => {
                 <div>
                   <h3 className="font-semibold mb-1">Grant Writing Workshops</h3>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Information on upcoming virtual and in-person grant writing workshops in Toronto.
+                    Information on upcoming virtual and in-person grant writing workshops in Canada.
                   </p>
                   <Button variant="outline" size="sm" className="flex items-center gap-2">
                     <ExternalLink className="h-4 w-4" /> See Schedule
@@ -117,7 +117,7 @@ const Resources = () => {
                 <tbody>
                   <tr className="border-b">
                     <td className="py-3 px-4">Music Projects</td>
-                    <td className="py-3 px-4">Toronto Arts Council</td>
+                    <td className="py-3 px-4">Canada Arts Council</td>
                     <td className="py-3 px-4">June 1, 2024</td>
                     <td className="py-3 px-4">Up to $10,000</td>
                   </tr>
@@ -147,7 +147,7 @@ const Resources = () => {
           <div>
             <h2 className="text-2xl font-bold mb-6">Community Support</h2>
             <p className="text-lg mb-4">
-              Connect with other musicians and grant recipients in the Toronto area who can share their experiences and advice.
+              Connect with other musicians and grant recipients in the Canada area who can share their experiences and advice.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

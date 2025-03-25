@@ -16,7 +16,7 @@ const FAQ = () => {
         <header className="border-b p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary">Toronto Music Grant Assistant</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-primary">Canada Music Grant Assistant</h1>
               <p className="text-muted-foreground">AI-powered grant writing for musicians</p>
             </div>
           </div>
@@ -30,17 +30,17 @@ const FAQ = () => {
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger className="text-lg font-medium">
-                  What types of music grants are available in Toronto?
+                  What types of music grants are available in Canada?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  <p className="mb-2">Toronto offers various grants for musicians, including:</p>
+                  <p className="mb-2">Canada offers various grants for musicians, including:</p>
                   <ul className="list-disc pl-6 space-y-1">
-                    <li>Toronto Arts Council Music Projects</li>
+                    <li>Canada Arts Council Music Projects</li>
                     <li>Ontario Arts Council Music Creation Projects</li>
                     <li>FACTOR Juried Sound Recording Program</li>
                     <li>Canada Council for the Arts Music Grants</li>
                     <li>Ontario Music Investment Fund</li>
-                    <li>Toronto Music Industry Initiative</li>
+                    <li>Canada Music Industry Initiative</li>
                   </ul>
                   <p className="mt-2">Each has different eligibility requirements and funding amounts.</p>
                 </AccordionContent>
@@ -104,10 +104,10 @@ const FAQ = () => {
                   How does the Enhanced AI feature work?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  Our Enhanced AI feature uses the DeepSeek language model to provide more sophisticated analysis and recommendations. 
+                  Our Enhanced AI feature uses the AI Grant Tool language model to provide more sophisticated analysis and recommendations. 
                   When enabled, your queries are processed through an advanced AI system that has been specifically trained on successful 
                   grant applications and music industry knowledge. This allows for more nuanced and contextual advice tailored to 
-                  Toronto's music grant ecosystem. You can toggle this feature on or off in the chat interface.
+                  Canada's music grant ecosystem. You can toggle this feature on or off in the chat interface.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

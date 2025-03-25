@@ -86,7 +86,7 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
     
     // Create context based on current state
-    let context = "You are a Toronto Music Grant Assistant. You provide expert advice on music grant applications.";
+    let context = "You are a Canada Music Grant Assistant. You provide expert advice on music grant applications.";
     
     if (userProfile) {
       context += ` The user is a ${userProfile.careerStage} musician in the ${userProfile.genre} genre with ${userProfile.streamingNumbers} streaming numbers. They've previously received ${userProfile.previousGrants} grants. Their current project is a ${userProfile.projectType} with a budget of ${userProfile.projectBudget}.`;

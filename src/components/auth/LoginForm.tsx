@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 type LoginFormProps = {
   onSuccess: () => void;
@@ -23,7 +24,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -34,18 +35,21 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
       return;
     }
     
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        login(formData.email, formData.password);
+    try {
+      const { error } = await login(formData.email, formData.password);
+      
+      if (error) {
+        toast.error(error.message || "Login failed. Please check your credentials.");
+      } else {
         toast.success("Login successful!");
         onSuccess();
-      } catch (error) {
-        toast.error("Login failed. Please try again.");
-      } finally {
-        setIsLoading(false);
       }
-    }, 1000);
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -82,7 +86,12 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
       </div>
       
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Logging in..." : "Login"}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+            Logging in...
+          </>
+        ) : "Login"}
       </Button>
     </form>
   );

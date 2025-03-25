@@ -1,7 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from "@supabase/supabase-js";
 
-type User = {
+type UserProfile = {
   id: string;
   email: string;
   name: string;
@@ -9,65 +11,134 @@ type User = {
 };
 
 type AuthContextType = {
-  user: User | null;
+  user: UserProfile | null;
+  session: Session | null;
   isAuthenticated: boolean;
   isPaidUser: boolean;
-  login: (email: string, password: string) => void;
-  signup: (name: string, email: string, password: string) => void;
-  logout: () => void;
-  completePayment: () => void;
+  login: (email: string, password: string) => Promise<{ error: any | null }>;
+  signup: (name: string, email: string, password: string) => Promise<{ error: any | null }>;
+  logout: () => Promise<void>;
+  completePayment: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   
-  // Check localStorage on init to restore user session
+  // Initialize auth state
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        setSession(currentSession);
+        if (currentSession?.user) {
+          // Create user profile from session data
+          const userProfile: UserProfile = {
+            id: currentSession.user.id,
+            email: currentSession.user.email || '',
+            name: currentSession.user.user_metadata?.name || currentSession.user.email?.split('@')[0] || '',
+            hasPaid: currentSession.user.user_metadata?.hasPaid || false,
+          };
+          setUser(userProfile);
+        } else {
+          setUser(null);
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      if (currentSession?.user) {
+        // Create user profile from session data
+        const userProfile: UserProfile = {
+          id: currentSession.user.id,
+          email: currentSession.user.email || '',
+          name: currentSession.user.user_metadata?.name || currentSession.user.email?.split('@')[0] || '',
+          hasPaid: currentSession.user.user_metadata?.hasPaid || false,
+        };
+        setUser(userProfile);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = (email: string, password: string) => {
-    // In a real app, this would validate with a backend
-    // For demo purposes, we'll create a mock user
-    const newUser = {
-      id: "user-" + Date.now(),
-      email,
-      name: email.split("@")[0],
-      hasPaid: false,
-    };
-    
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+  const login = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        console.error("Login error:", error.message);
+        return { error };
+      }
+      
+      return { error: null };
+    } catch (error) {
+      console.error("Login exception:", error);
+      return { error };
+    }
   };
 
-  const signup = (name: string, email: string, password: string) => {
-    // In a real app, this would create an account with a backend
-    const newUser = {
-      id: "user-" + Date.now(),
-      email,
-      name,
-      hasPaid: false,
-    };
-    
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+  const signup = async (name: string, email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            hasPaid: false,
+          }
+        }
+      });
+      
+      if (error) {
+        console.error("Signup error:", error.message);
+        return { error };
+      }
+      
+      return { error: null };
+    } catch (error) {
+      console.error("Signup exception:", error);
+      return { error };
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem("user");
+    setSession(null);
   };
 
-  const completePayment = () => {
-    if (user) {
-      const paidUser = { ...user, hasPaid: true };
-      setUser(paidUser);
-      localStorage.setItem("user", JSON.stringify(paidUser));
+  const completePayment = async () => {
+    if (user && session) {
+      try {
+        // Update user metadata to reflect paid status
+        const { error } = await supabase.auth.updateUser({
+          data: { hasPaid: true }
+        });
+        
+        if (error) {
+          console.error("Failed to update payment status:", error);
+          return;
+        }
+        
+        // Update local state
+        setUser({
+          ...user,
+          hasPaid: true
+        });
+      } catch (error) {
+        console.error("Error updating payment status:", error);
+      }
     }
   };
 
@@ -75,7 +146,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        session,
+        isAuthenticated: !!user && !!session,
         isPaidUser: !!user?.hasPaid,
         login,
         signup,

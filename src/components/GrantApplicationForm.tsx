@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -22,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { AuthRequiredScreen } from "./statistics/AuthRequiredScreen";
 
 const formSchema = z.object({
   artistName: z.string().min(2, "Artist name must be at least 2 characters"),
@@ -39,6 +39,7 @@ export const GrantApplicationForm = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { grantId } = useParams();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,11 +57,12 @@ export const GrantApplicationForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!isAuthenticated || !user) {
       toast.error("Please sign in to save your application");
+      setShowAuthModal(true);
       return;
     }
 
     setIsSaving(true);
-    console.log(values);
+    console.log("Form values:", values);
     
     try {
       // Convert the budget to a numeric value if possible
@@ -83,10 +85,15 @@ export const GrantApplicationForm = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+      
+      console.log("Application saved:", data);
       
       // Also save AI suggestions for each section
-      await supabase.from('ai_suggestions').insert([
+      const { error: suggestionsError } = await supabase.from('ai_suggestions').insert([
         {
           application_id: data.id,
           category: 'project_description',
@@ -104,19 +111,36 @@ export const GrantApplicationForm = () => {
         }
       ]);
       
+      if (suggestionsError) {
+        console.error("Error saving suggestions:", suggestionsError);
+      }
+      
       toast.success("Application draft saved successfully!");
       
       // Redirect to application dashboard
       setTimeout(() => {
         navigate('/applications');
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving application:", error);
-      toast.error("Failed to save application. Please try again.");
+      toast.error(error.message || "Failed to save application. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
+
+  const handleSignIn = () => {
+    setShowAuthModal(true);
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <h2 className="text-3xl font-bold text-primary mb-6">Grant Application Assistant</h2>
+        <AuthRequiredScreen onSignInClick={handleSignIn} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 animate-fadeIn">

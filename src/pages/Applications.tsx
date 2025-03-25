@@ -32,13 +32,17 @@ const Applications = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, session } = useAuth();
   
   useEffect(() => {
     const fetchApplications = async () => {
-      if (!isAuthenticated || !user) return;
+      if (!isAuthenticated || !user) {
+        setIsLoading(false);
+        return;
+      }
       
       try {
+        setIsLoading(true);
         const { data, error } = await supabase
           .from('applications')
           .select(`
@@ -59,8 +63,12 @@ const Applications = () => {
           .eq('user_id', user.id)
           .order('updated_at', { ascending: false });
           
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching applications:', error);
+          throw error;
+        }
         
+        console.log('Fetched applications:', data);
         setApplications(data || []);
       } catch (error) {
         console.error('Error fetching applications:', error);

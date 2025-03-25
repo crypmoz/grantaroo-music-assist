@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 type SignupFormProps = {
   onSuccess: () => void;
@@ -25,7 +26,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -42,18 +43,21 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
       return;
     }
     
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        signup(formData.name, formData.email, formData.password);
-        toast.success("Account created successfully!");
+    try {
+      const { error } = await signup(formData.name, formData.email, formData.password);
+      
+      if (error) {
+        toast.error(error.message || "Signup failed. Please try again.");
+      } else {
+        toast.success("Account created successfully! Please check your email to confirm your account.");
         onSuccess();
-      } catch (error) {
-        toast.error("Signup failed. Please try again.");
-      } finally {
-        setIsLoading(false);
       }
-    }, 1000);
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -110,7 +114,12 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
       </div>
       
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Sign Up"}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+            Creating account...
+          </>
+        ) : "Sign Up"}
       </Button>
     </form>
   );

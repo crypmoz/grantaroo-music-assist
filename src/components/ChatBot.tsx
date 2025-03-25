@@ -94,7 +94,7 @@ export const ChatBot = () => {
                 <PaywallScreen />
               </div>
             ) : (
-              <Button as={Link} to="/assistant">
+              <Button onClick={() => window.location.href = '/assistant'}>
                 Open Full Assistant
               </Button>
             )}

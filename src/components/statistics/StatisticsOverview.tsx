@@ -28,7 +28,7 @@ export const StatisticsOverview = () => {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
-          query: { chart: 'status' }
+          body: { chart: 'status' }
         });
         
         if (statusResponse.error) {
@@ -42,7 +42,7 @@ export const StatisticsOverview = () => {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
-          query: { chart: 'category' }
+          body: { chart: 'category' }
         });
         
         if (categoryResponse.error) {
@@ -56,7 +56,7 @@ export const StatisticsOverview = () => {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
-          query: { chart: 'monthly' }
+          body: { chart: 'monthly' }
         });
         
         if (monthlyResponse.error) {
@@ -136,3 +136,4 @@ export const StatisticsOverview = () => {
     </div>
   );
 };
+

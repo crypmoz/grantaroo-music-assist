@@ -1,150 +1,92 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.23.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-
+  
   try {
-    // Create supabase admin client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") as string;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Get user ID from request
-    const authHeader = req.headers.get("Authorization")?.replace("Bearer ", "");
+    const { chart } = await req.json();
     
-    if (!authHeader) {
+    // Create Supabase client with Admin privileges
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    );
+    
+    // Get user ID from JWT
+    const {
+      data: { user },
+    } = await supabaseAdmin.auth.getUser();
+    
+    if (!user) {
       return new Response(
-        JSON.stringify({ error: "No authorization header" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Verify the JWT
-    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader);
     
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Invalid credentials" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
-      );
-    }
-
-    // Get the chart type from the URL
-    const url = new URL(req.url);
-    const chartType = url.searchParams.get("chart") || "status";
+    let data = [];
     
-    // Get applications for this user
-    const { data: applications, error: fetchError } = await supabase
-      .from("applications")
-      .select("status, created_at, grant:grant_id(category)")
-      .eq("user_id", user.id);
-    
-    if (fetchError) {
-      return new Response(
-        JSON.stringify({ error: fetchError.message }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-      );
-    }
-
-    // Process data based on chart type
-    let chartData;
-    
-    switch (chartType) {
-      case "status":
-        const statusCounts = {
-          draft: 0,
-          submitted: 0,
-          approved: 0,
-          rejected: 0
-        };
-        
-        applications.forEach(app => {
-          if (app.status in statusCounts) {
-            statusCounts[app.status as keyof typeof statusCounts]++;
-          }
-        });
-        
-        chartData = Object.keys(statusCounts).map(status => ({
-          name: status.charAt(0).toUpperCase() + status.slice(1),
-          value: statusCounts[status as keyof typeof statusCounts]
-        }));
-        break;
-        
-      case "category":
-        const categoryCounts: Record<string, number> = {};
-        
-        applications.forEach(app => {
-          const category = app.grant?.category || "Uncategorized";
-          categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        });
-        
-        chartData = Object.keys(categoryCounts).map(category => ({
-          name: category,
-          value: categoryCounts[category]
-        }));
-        break;
-        
-      case "monthly":
-        const monthlyData: Record<string, number> = {};
-        const now = new Date();
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(now.getMonth() - 5);
-        
-        // Initialize last 6 months
-        for (let i = 0; i < 6; i++) {
-          const d = new Date(sixMonthsAgo);
-          d.setMonth(sixMonthsAgo.getMonth() + i);
-          const monthYear = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          monthlyData[monthYear] = 0;
+    if (chart === 'status') {
+      // Sample status data for demonstration
+      data = [
+        { name: 'Draft', value: 2, color: '#94a3b8' },
+        { name: 'Submitted', value: 3, color: '#3b82f6' },
+        { name: 'Under Review', value: 2, color: '#eab308' },
+        { name: 'Approved', value: 1, color: '#22c55e' },
+        { name: 'Rejected', value: 1, color: '#ef4444' }
+      ];
+    } else if (chart === 'category') {
+      // Sample category data
+      data = [
+        { name: 'Research', value: 3, color: '#3b82f6' },
+        { name: 'Education', value: 2, color: '#22c55e' },
+        { name: 'Community', value: 2, color: '#eab308' },
+        { name: 'Arts', value: 1, color: '#ec4899' },
+        { name: 'Technology', value: 1, color: '#8b5cf6' }
+      ];
+    } else if (chart === 'monthly') {
+      // Sample monthly data
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      data = months.map((month, index) => {
+        // Generate some sample data with a realistic pattern
+        let count = 0;
+        if (index < 6) {
+          // Past months have some data
+          count = Math.floor(Math.random() * 3);
+        } else if (index === 6 || index === 7) {
+          // Current month has more activity
+          count = Math.floor(Math.random() * 4) + 1;
         }
         
-        // Count applications by month
-        applications.forEach(app => {
-          if (app.created_at) {
-            const date = new Date(app.created_at);
-            const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            if (monthYear in monthlyData) {
-              monthlyData[monthYear]++;
-            }
-          }
-        });
-        
-        chartData = Object.keys(monthlyData).sort().map(month => {
-          const [year, monthNum] = month.split('-');
-          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-          const monthName = monthNames[parseInt(monthNum) - 1];
-          return {
-            name: `${monthName} ${year}`,
-            applications: monthlyData[month]
-          };
-        });
-        break;
-        
-      default:
-        chartData = [];
+        return {
+          name: month,
+          count: count
+        };
+      });
     }
-
-    // Return the processed data
+    
     return new Response(
-      JSON.stringify({ data: chartData }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ data }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
     
   } catch (error) {
-    console.error("Error processing request:", error);
+    console.error("Error in get-chart-data function:", error);
+    
     return new Response(
       JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

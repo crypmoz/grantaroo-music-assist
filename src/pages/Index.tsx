@@ -3,17 +3,18 @@ import { GrantApplicationForm } from "@/components/GrantApplicationForm";
 import { ChatBot } from "@/components/ChatBot";
 import { ChatbotProvider } from "@/context/ChatbotContext";
 import { Button } from "@/components/ui/button";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Music, Award, FileText } from "lucide-react";
 import { useState } from "react";
 import { NavBar } from "@/components/NavBar";
+import { motion } from "framer-motion";
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
   
   return (
     <ChatbotProvider>
-      <div className="min-h-screen bg-background">
-        <header className="border-b p-4 md:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/30">
+        <header className="border-b p-4 md:p-6 bg-white/80 backdrop-blur-sm">
           <div className="flex flex-col md:flex-row items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-primary">Canada Music Grant Assistant</h1>
@@ -28,33 +29,125 @@ const Index = () => {
         
         <main className="container mx-auto py-8 px-4 md:px-0">
           {!showForm ? (
-            <div className="max-w-2xl mx-auto text-center space-y-6">
-              <h2 className="text-3xl font-bold">Find the Perfect Grant for Your Music Project</h2>
-              <p className="text-xl text-muted-foreground">
-                Our AI-powered assistant will guide you through every step of the grant application process,
-                from matching you with the right opportunities to helping you complete your application.
-              </p>
-              <div className="flex justify-center gap-4 flex-wrap">
-                <Button 
-                  size="lg" 
-                  className="flex items-center gap-2"
-                  onClick={() => setShowForm(true)}
+            <div className="max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="space-y-6"
                 >
-                  View Application Form
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="flex items-center gap-2"
-                  onClick={() => {
-                    const chatbotButton = document.querySelector('.fixed.bottom-4.right-4') as HTMLButtonElement;
-                    if (chatbotButton) chatbotButton.click();
-                  }}
+                  <h2 className="text-4xl md:text-5xl font-bold text-primary leading-tight">
+                    Find the <span className="text-blue-600">Perfect Grant</span> for Your Music Project
+                  </h2>
+                  <p className="text-xl text-muted-foreground">
+                    Our AI-powered assistant will guide you through every step of the grant application process,
+                    from matching you with the right opportunities to helping you complete your application.
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <Button 
+                      size="lg" 
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => setShowForm(true)}
+                    >
+                      <FileText className="h-5 w-5" />
+                      View Application Form
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      className="flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                      onClick={() => {
+                        const chatbotButton = document.querySelector('.fixed.bottom-4.right-4') as HTMLButtonElement;
+                        if (chatbotButton) chatbotButton.click();
+                      }}
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      Chat with Grant Assistant
+                    </Button>
+                  </div>
+                </motion.div>
+                
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="hidden lg:flex justify-center"
                 >
-                  <MessageCircle className="h-5 w-5" />
-                  Chat with Grant Assistant
-                </Button>
+                  <div className="relative w-full max-w-md aspect-square">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
+                    <div className="relative bg-white/90 shadow-xl rounded-2xl p-8 backdrop-blur-sm border border-white/20">
+                      <div className="flex flex-col h-full justify-center items-center space-y-6">
+                        <div className="bg-blue-100 p-4 rounded-full">
+                          <Award className="h-12 w-12 text-blue-600" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-center">Increase Your Success Rate</h3>
+                        <p className="text-center text-muted-foreground">
+                          Musicians who use our platform are 3x more likely to receive grant funding
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
+              >
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                  <div className="bg-blue-100 p-3 rounded-full w-fit mb-4">
+                    <Award className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Expert Guidance</h3>
+                  <p className="text-muted-foreground">
+                    Get personalized advice from our AI that's trained on successful grant applications
+                  </p>
+                </div>
+                
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                  <div className="bg-purple-100 p-3 rounded-full w-fit mb-4">
+                    <FileText className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Application Templates</h3>
+                  <p className="text-muted-foreground">
+                    Access proven templates and examples that have helped artists secure funding
+                  </p>
+                </div>
+                
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                  <div className="bg-indigo-100 p-3 rounded-full w-fit mb-4">
+                    <Music className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Industry Specific</h3>
+                  <p className="text-muted-foreground">
+                    Tailored specifically for the Canadian music industry and its unique funding landscape
+                  </p>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-10 rounded-2xl shadow-lg"
+              >
+                <div className="max-w-2xl mx-auto text-center">
+                  <h2 className="text-3xl font-bold mb-4">Ready to Start Your Application?</h2>
+                  <p className="text-xl mb-6 text-blue-100">
+                    Let our AI assistant help you craft a compelling grant application that stands out
+                  </p>
+                  <Button 
+                    size="lg" 
+                    className="bg-white text-blue-600 hover:bg-blue-50"
+                    onClick={() => setShowForm(true)}
+                  >
+                    Get Started Now
+                  </Button>
+                </div>
+              </motion.div>
             </div>
           ) : (
             <>

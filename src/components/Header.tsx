@@ -2,10 +2,25 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Headphones, Sparkles } from "lucide-react";
+import { 
+  Headphones, 
+  Sparkles, 
+  LayoutDashboard, 
+  FileText, 
+  User, 
+  BarChart 
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserProfile } from "./auth/UserProfile";
 import { AuthModal } from "./auth/AuthModal";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Header = () => {
   const { isAuthenticated, isPaidUser } = useAuth();
@@ -29,6 +44,46 @@ export const Header = () => {
           <Link to="/faq" className="text-gray-700 hover:text-blue-600 transition-colors">
             FAQ
           </Link>
+          
+          {isAuthenticated && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-1 p-0">
+                  <LayoutDashboard className="h-4 w-4 mr-1" />
+                  Dashboard
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Your Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
+                    <LayoutDashboard className="h-4 w-4" />
+                    Overview
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/applications" className="flex items-center gap-2 cursor-pointer">
+                    <FileText className="h-4 w-4" />
+                    Applications
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                    <User className="h-4 w-4" />
+                    My Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/stats" className="flex items-center gap-2 cursor-pointer">
+                    <BarChart className="h-4 w-4" />
+                    Statistics
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          
           {isPaidUser && (
             <Link 
               to="/assistant" 

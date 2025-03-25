@@ -10,7 +10,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, CreditCard } from "lucide-react";
+import { 
+  LogOut, 
+  User, 
+  CreditCard, 
+  LayoutDashboard, 
+  FileText, 
+  Settings,
+  Sparkles 
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const UserProfile = () => {
   const { user, logout, isPaidUser, completePayment } = useAuth();
@@ -35,16 +44,53 @@ export const UserProfile = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="flex items-center gap-2">
-          <User className="h-4 w-4" />
-          <span>{user.name}</span>
+        
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+          </Link>
         </DropdownMenuItem>
+        
+        <DropdownMenuItem asChild>
+          <Link to="/applications" className="flex items-center gap-2 cursor-pointer">
+            <FileText className="h-4 w-4" />
+            My Applications
+          </Link>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem asChild>
+          <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+            <User className="h-4 w-4" />
+            Profile Settings
+          </Link>
+        </DropdownMenuItem>
+        
+        {isPaidUser && (
+          <DropdownMenuItem asChild>
+            <Link to="/assistant" className="flex items-center gap-2 cursor-pointer">
+              <Sparkles className="h-4 w-4" />
+              Grant Assistant
+            </Link>
+          </DropdownMenuItem>
+        )}
+        
+        <DropdownMenuSeparator />
+        
         <DropdownMenuItem className="flex items-center gap-2">
           <CreditCard className="h-4 w-4" />
           <span>{isPaidUser ? "Premium Member" : "Free Account"}</span>
         </DropdownMenuItem>
+        
         {!isPaidUser && (
           <DropdownMenuItem 
             onClick={completePayment} 
@@ -53,7 +99,9 @@ export const UserProfile = () => {
             Upgrade to Premium
           </DropdownMenuItem>
         )}
+        
         <DropdownMenuSeparator />
+        
         <DropdownMenuItem 
           onClick={logout}
           className="text-red-600"

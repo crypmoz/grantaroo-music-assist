@@ -13,6 +13,9 @@ import Resources from "./pages/Resources";
 import GrantAssistant from "./pages/GrantAssistant";
 import Applications from "./pages/Applications";
 import NewApplication from "./pages/NewApplication";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import Statistics from "./pages/Statistics";
 import { ChatBot } from "./components/ChatBot";
 import { GrantApplicationForm } from "./components/GrantApplicationForm";
 
@@ -36,6 +39,9 @@ const App = () => (
               <Route path="/new-application" element={<NewApplication />} />
               <Route path="/apply" element={<GrantApplicationForm />} />
               <Route path="/apply/:grantId" element={<GrantApplicationForm />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/stats" element={<Statistics />} />
             </Routes>
             <ChatBot />
           </BrowserRouter>

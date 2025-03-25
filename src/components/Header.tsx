@@ -2,13 +2,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Headphones } from "lucide-react";
+import { Headphones, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserProfile } from "./auth/UserProfile";
 import { AuthModal } from "./auth/AuthModal";
 
 export const Header = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isPaidUser } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   
   return (
@@ -29,6 +29,15 @@ export const Header = () => {
           <Link to="/faq" className="text-gray-700 hover:text-blue-600 transition-colors">
             FAQ
           </Link>
+          {isPaidUser && (
+            <Link 
+              to="/assistant" 
+              className="text-primary font-medium hover:text-primary/80 transition-colors flex items-center gap-1"
+            >
+              <Sparkles className="h-4 w-4" />
+              Grant Assistant
+            </Link>
+          )}
         </nav>
         
         <div className="flex items-center gap-3">

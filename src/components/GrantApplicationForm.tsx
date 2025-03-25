@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,10 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { AISuggestions } from "./AISuggestions";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
+import { useParams, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   artistName: z.string().min(2, "Artist name must be at least 2 characters"),
@@ -30,6 +35,10 @@ const formSchema = z.object({
 
 export const GrantApplicationForm = () => {
   const [currentSection, setCurrentSection] = useState("projectDescription");
+  const [isSaving, setIsSaving] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { grantId } = useParams();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,9 +53,69 @@ export const GrantApplicationForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!isAuthenticated || !user) {
+      toast.error("Please sign in to save your application");
+      return;
+    }
+
+    setIsSaving(true);
     console.log(values);
-    toast.success("Application draft saved successfully!");
+    
+    try {
+      // Convert the budget to a numeric value if possible
+      const budget = parseFloat(values.budget) || values.budget;
+      
+      // Create application in Supabase
+      const { data, error } = await supabase
+        .from('applications')
+        .insert({
+          user_id: user.id,
+          grant_id: grantId || null,
+          project_description: values.projectDescription,
+          timeline: values.timeline,
+          budget: {
+            amount: budget,
+            details: "Budget details will be added in a separate section"
+          },
+          status: 'draft'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      // Also save AI suggestions for each section
+      await supabase.from('ai_suggestions').insert([
+        {
+          application_id: data.id,
+          category: 'project_description',
+          suggestion: 'Enhance your project description by adding more details about the artistic vision.'
+        },
+        {
+          application_id: data.id,
+          category: 'timeline',
+          suggestion: 'Consider breaking down your timeline into specific milestones with target dates.'
+        },
+        {
+          application_id: data.id,
+          category: 'budget',
+          suggestion: 'Be more specific about how the budget will be allocated across different aspects of the project.'
+        }
+      ]);
+      
+      toast.success("Application draft saved successfully!");
+      
+      // Redirect to application dashboard
+      setTimeout(() => {
+        navigate('/applications');
+      }, 1500);
+    } catch (error) {
+      console.error("Error saving application:", error);
+      toast.error("Failed to save application. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -177,7 +246,15 @@ export const GrantApplicationForm = () => {
                 )}
               />
 
-              <Button type="submit" className="w-full">Save Application Draft</Button>
+              <Button type="submit" className="w-full" disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  "Save Application Draft"
+                )}
+              </Button>
             </form>
           </Form>
         </div>

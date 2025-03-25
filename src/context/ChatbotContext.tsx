@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { getAIGrantToolResponse } from "@/services/aiGrantToolService";
+import { supabase } from "@/integrations/supabase/client";
 
 export type MessageType = {
   id: string;
@@ -85,18 +85,21 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
       return "I'd be happy to help with your grant application! What specific aspect would you like assistance with?";
     }
     
-    // Create context based on current state
-    let context = "You are a Canada Music Grant Assistant. You provide expert advice on music grant applications.";
-    
-    if (userProfile) {
-      context += ` The user is a ${userProfile.careerStage} musician in the ${userProfile.genre} genre with ${userProfile.streamingNumbers} streaming numbers. They've previously received ${userProfile.previousGrants} grants. Their current project is a ${userProfile.projectType} with a budget of ${userProfile.projectBudget}.`;
+    try {
+      const { data, error } = await supabase.functions.invoke('grant-assistant', {
+        body: { 
+          message: userMessage,
+          userProfile: userProfile 
+        }
+      });
+
+      if (error) throw error;
+      
+      return data.response;
+    } catch (error) {
+      console.error("Error invoking edge function:", error);
+      return "I'm having trouble connecting to my enhanced AI capabilities right now. Let me provide basic assistance instead.";
     }
-    
-    if (successfulAppData.appliedFactors.length > 0) {
-      context += ` Based on successful grant applications, these factors lead to success: ${successfulAppData.appliedFactors.join(", ")}.`;
-    }
-    
-    return getAIGrantToolResponse(userMessage, context);
   };
 
   return (

@@ -11,6 +11,9 @@ import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Resources from "./pages/Resources";
 import GrantAssistant from "./pages/GrantAssistant";
+import Applications from "./pages/Applications";
+import NewApplication from "./pages/NewApplication";
+import { ChatBot } from "./components/ChatBot";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +31,12 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/assistant" element={<GrantAssistant />} />
+              <Route path="/applications" element={<Applications />} />
+              <Route path="/new-application" element={<NewApplication />} />
+              <Route path="/apply" element={<GrantApplicationForm />} />
+              <Route path="/apply/:grantId" element={<GrantApplicationForm />} />
             </Routes>
+            <ChatBot />
           </BrowserRouter>
         </TooltipProvider>
       </ChatbotProvider>

@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { getDeepseekResponse } from "@/services/deepseekService";
+import { getAIGrantToolResponse } from "@/services/aiGrantToolService";
 
 export type MessageType = {
   id: string;
@@ -96,7 +96,7 @@ export const ChatbotProvider: React.FC<{ children: ReactNode }> = ({ children })
       context += ` Based on successful grant applications, these factors lead to success: ${successfulAppData.appliedFactors.join(", ")}.`;
     }
     
-    return getDeepseekResponse(userMessage, context);
+    return getAIGrantToolResponse(userMessage, context);
   };
 
   return (

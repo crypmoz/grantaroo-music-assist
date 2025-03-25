@@ -26,7 +26,7 @@ export const ChatBot = () => {
         
         // Add a small delay before showing the enhanced AI message
         setTimeout(() => {
-          addMessage("✨ I'm now enhanced with DeepSeek AI technology to provide even more insightful grant assistance based on successful applications!", "bot");
+          addMessage("✨ I'm now enhanced with AI Grant Tool technology to provide even more insightful grant assistance based on successful applications!", "bot");
           
           // Add a small delay before showing the first question
           setTimeout(() => {

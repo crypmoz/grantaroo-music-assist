@@ -8,7 +8,8 @@ type ChatMessageProps = {
 };
 
 export const ChatMessage = ({ message }: ChatMessageProps) => {
-  const isBot = message.sender === "bot";
+  // Support both role and sender to handle legacy messages
+  const isBot = message.role === "assistant" || message.sender === "bot";
   
   // Convert markdown-like syntax to HTML
   const formatMessage = (content: string) => {

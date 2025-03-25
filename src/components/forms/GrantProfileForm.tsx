@@ -150,7 +150,7 @@ export const GrantProfileForm = () => {
     
     // Only add to chat if there's an answer (for optional fields)
     if (answer) {
-      addMessage(question, "bot");
+      addMessage(question, "assistant");
       addMessage(answer, "user");
     }
     
@@ -172,10 +172,10 @@ export const GrantProfileForm = () => {
     // Add a summary message
     const botResponse = `Based on your profile as a ${formData.careerStage} in the ${formData.genre || "music"} genre, I've identified ${matches.length} grants that could be a good fit for your ${formData.projectType} project with a budget of ${formData.projectBudget}.`;
     
-    addMessage(botResponse, "bot");
+    addMessage(botResponse, "assistant");
     
     // Move to next step
-    setCurrentStep("grant-suggestions");
+    setCurrentStep("suggestions");
     
     toast.success("Profile analyzed successfully!");
   };
@@ -186,7 +186,7 @@ export const GrantProfileForm = () => {
         setCurrentQuestion(prev => prev + 1);
         
         // Add the skipped question to chat
-        addMessage(questions[currentQuestion].question, "bot");
+        addMessage(questions[currentQuestion].question, "assistant");
         addMessage("I prefer not to answer this question", "user");
       } else {
         completeProfile();

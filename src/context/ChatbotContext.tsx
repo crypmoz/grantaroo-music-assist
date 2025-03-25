@@ -6,14 +6,15 @@ import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
 
 // Types
-type MessageType = {
+export type MessageType = {
   id: string;
   content: string;
   role: "user" | "assistant";
   timestamp: Date;
+  sender?: "user" | "bot"; // For backward compatibility
 };
 
-type GrantProfileType = {
+export type GrantProfileType = {
   careerStage: string;
   genre: string;
   streamingNumbers: string;
@@ -22,17 +23,41 @@ type GrantProfileType = {
   projectBudget: string;
 };
 
+export type SuccessfulAppDataType = {
+  appliedFactors: string[];
+  isShowingExamples: boolean;
+};
+
+export type GrantType = {
+  id: string;
+  name: string;
+  provider: string;
+  maxAmount: string;
+  deadline: string;
+  url: string;
+  eligibility: string[];
+};
+
 type ChatbotContextType = {
   messages: MessageType[];
   isTyping: boolean;
-  currentStep: "welcome" | "profile" | "suggestions";
+  currentStep: "welcome" | "profile" | "suggestions" | "application-form";
   grantProfile: GrantProfileType | null;
+  userProfile: GrantProfileType | null;
   useEnhancedAI: boolean;
+  suggestedGrants: GrantType[];
+  successfulAppData: SuccessfulAppDataType;
+  isLoading: boolean;
   toggleEnhancedAI: () => void;
   addMessage: (content: string, role: "user" | "assistant") => Promise<void>;
   setGrantProfile: (profile: GrantProfileType) => void;
-  setCurrentStep: (step: "welcome" | "profile" | "suggestions") => void;
+  setUserProfile: (profile: GrantProfileType) => void;
+  setCurrentStep: (step: "welcome" | "profile" | "suggestions" | "application-form") => void;
   clearMessages: () => void;
+  setSuggestedGrants: (grants: GrantType[]) => void;
+  setSuccessfulAppData: (data: SuccessfulAppDataType) => void;
+  setIsLoading: (loading: boolean) => void;
+  getEnhancedResponse: (message: string) => Promise<string>;
 };
 
 const defaultContext: ChatbotContextType = {
@@ -40,12 +65,21 @@ const defaultContext: ChatbotContextType = {
   isTyping: false,
   currentStep: "welcome",
   grantProfile: null,
+  userProfile: null,
   useEnhancedAI: true,
+  suggestedGrants: [],
+  successfulAppData: { appliedFactors: [], isShowingExamples: false },
+  isLoading: false,
   toggleEnhancedAI: () => {},
   addMessage: async () => {},
   setGrantProfile: () => {},
+  setUserProfile: () => {},
   setCurrentStep: () => {},
   clearMessages: () => {},
+  setSuggestedGrants: () => {},
+  setSuccessfulAppData: () => {},
+  setIsLoading: () => {},
+  getEnhancedResponse: async () => "",
 };
 
 const ChatbotContext = createContext<ChatbotContextType>(defaultContext);
@@ -55,9 +89,17 @@ export const useChatbot = () => useContext(ChatbotContext);
 export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"welcome" | "profile" | "suggestions">("welcome");
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState<"welcome" | "profile" | "suggestions" | "application-form">("welcome");
   const [grantProfile, setGrantProfile] = useState<GrantProfileType | null>(null);
+  const [userProfile, setUserProfile] = useState<GrantProfileType | null>(null);
   const [useEnhancedAI, setUseEnhancedAI] = useState(true);
+  const [suggestedGrants, setSuggestedGrants] = useState<GrantType[]>([]);
+  const [successfulAppData, setSuccessfulAppData] = useState<SuccessfulAppDataType>({
+    appliedFactors: [],
+    isShowingExamples: false
+  });
+  
   const { isAuthenticated, isPaidUser } = useAuth();
 
   const toggleEnhancedAI = () => {
@@ -66,6 +108,24 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
 
   const clearMessages = () => {
     setMessages([]);
+  };
+
+  const getEnhancedResponse = async (userMessage: string): Promise<string> => {
+    try {
+      // Call the Supabase edge function for AI response
+      const { data, error } = await supabase.functions.invoke('chat-with-ai', {
+        body: { 
+          message: userMessage,
+          userProfile: userProfile || grantProfile
+        }
+      });
+      
+      if (error) throw new Error(error.message);
+      return data.response || "I couldn't generate a response. Please try again.";
+    } catch (error) {
+      console.error("Error in getEnhancedResponse:", error);
+      return "I'm having trouble connecting to my enhanced capabilities. Let me provide basic assistance instead.";
+    }
   };
 
   const addMessage = async (content: string, role: "user" | "assistant") => {
@@ -87,15 +147,7 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
         
         if (useEnhancedAI) {
           // Use the Supabase edge function for enhanced AI
-          const { data, error } = await supabase.functions.invoke('chat-with-ai', {
-            body: { 
-              message: content,
-              userProfile: grantProfile
-            }
-          });
-          
-          if (error) throw new Error(error.message);
-          response = data.response;
+          response = await getEnhancedResponse(content);
         } else {
           // Use the basic AI service
           response = await getBasicAIResponse(content);
@@ -156,12 +208,21 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
         isTyping,
         currentStep,
         grantProfile,
+        userProfile,
         useEnhancedAI,
+        suggestedGrants,
+        successfulAppData,
+        isLoading,
         toggleEnhancedAI,
         addMessage,
         setGrantProfile,
+        setUserProfile,
         setCurrentStep,
         clearMessages,
+        setSuggestedGrants,
+        setSuccessfulAppData,
+        setIsLoading,
+        getEnhancedResponse,
       }}
     >
       {children}

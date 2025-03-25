@@ -41,7 +41,7 @@ export const ApplicationFormGuide = () => {
   
   const getSectionAdvice = (sectionId: string) => {
     // Base advice for each section
-    const baseAdvice = {
+    const baseAdvice: Record<string, string> = {
       "project-summary": "Keep your summary brief (150-250 words) and compelling. Clearly state what you're creating, why it matters, and how the grant will help achieve your goals.",
       "artist-background": "Highlight relevant achievements that demonstrate your ability to complete this project. Include streaming numbers, press coverage, previous grants, and collaborations.",
       "project-timeline": "Create a realistic schedule with clear milestones. Show that you've thought through each phase of the project and allocated sufficient time.",
@@ -55,11 +55,11 @@ export const ApplicationFormGuide = () => {
       const relevantFactors = filterRelevantFactors(sectionId, successfulAppData.appliedFactors);
       
       if (relevantFactors.length > 0) {
-        return `${baseAdvice[sectionId as keyof typeof baseAdvice]}\n\n**Tips from successful applications:**\n${relevantFactors.map(f => `• ${f}`).join('\n')}`;
+        return `${baseAdvice[sectionId]}\n\n**Tips from successful applications:**\n${relevantFactors.map(f => `• ${f}`).join('\n')}`;
       }
     }
     
-    return baseAdvice[sectionId as keyof typeof baseAdvice];
+    return baseAdvice[sectionId];
   };
   
   const filterRelevantFactors = (sectionId: string, factors: string[]) => {
@@ -84,9 +84,7 @@ export const ApplicationFormGuide = () => {
     const advice = getSectionAdvice(activeTab);
     addMessage(`I need help with the ${FORM_SECTIONS.find(s => s.id === activeTab)?.title} section of my application.`, "user");
     
-    setTimeout(() => {
-      addMessage(`Here's guidance for your **${FORM_SECTIONS.find(s => s.id === activeTab)?.title}** section:\n\n${advice}`, "bot");
-    }, 500);
+    // Let the context handle the response generation
   };
   
   const handleCopyText = (text: string) => {

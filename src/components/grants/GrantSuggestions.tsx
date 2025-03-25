@@ -33,7 +33,7 @@ export const GrantSuggestions = () => {
       addMessage(`I'd like to apply for the ${selectedGrant.name} grant from ${selectedGrant.provider}`, "user");
       
       setTimeout(() => {
-        addMessage(`Great choice! The ${selectedGrant.name} grant offers up to ${selectedGrant.maxAmount} and has a deadline of ${selectedGrant.deadline}. Let's start working on your application. I'll guide you through each section of the form using insights from successful applications.`, "bot");
+        addMessage(`Great choice! The ${selectedGrant.name} grant offers up to ${selectedGrant.maxAmount} and has a deadline of ${selectedGrant.deadline}. Let's start working on your application. I'll guide you through each section of the form using insights from successful applications.`, "assistant");
         setCurrentStep("application-form");
       }, 500);
     }
@@ -51,7 +51,7 @@ export const GrantSuggestions = () => {
       
       // Add a message with example information
       const example = examples[0]; // Taking the first example for now
-      addMessage(`📊 **Success Analysis**: ${example.projectDescription}\n\n💰 Awarded ${example.amountAwarded} in ${example.yearAwarded}\n\n**Key Success Factors:**\n${example.successFactors.map(f => `• ${f}`).join('\n')}\n\n**Budget Approach:**\n${example.budgetHighlights}`, "bot");
+      addMessage(`📊 **Success Analysis**: ${example.projectDescription}\n\n💰 Awarded ${example.amountAwarded} in ${example.yearAwarded}\n\n**Key Success Factors:**\n${example.successFactors.map(f => `• ${f}`).join('\n')}\n\n**Budget Approach:**\n${example.budgetHighlights}`, "assistant");
     }
   };
 
@@ -65,7 +65,7 @@ export const GrantSuggestions = () => {
     );
     
     if (relevantFactors.length > 0) {
-      addMessage(`📈 Based on successful ${userProfile.careerStage.toLowerCase()} applications for ${userProfile.projectType.toLowerCase()} projects, here are key factors that led to success:\n\n${relevantFactors.map(f => `• ${f}`).join('\n')}`, "bot");
+      addMessage(`📈 Based on successful ${userProfile.careerStage.toLowerCase()} applications for ${userProfile.projectType.toLowerCase()} projects, here are key factors that led to success:\n\n${relevantFactors.map(f => `• ${f}`).join('\n')}`, "assistant");
     }
   };
 

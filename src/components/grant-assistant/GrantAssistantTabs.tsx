@@ -37,20 +37,16 @@ export const GrantAssistantTabs = () => {
           <ChatTab />
         </TabsContent>
         
-        <TabsContent value="application" className="flex-grow p-0 m-0 overflow-auto">
-          <ScrollArea className="h-full">
-            <div className="p-4">
-              <ApplicationGuideTab />
-            </div>
-          </ScrollArea>
+        <TabsContent value="application" className="flex-grow p-0 m-0">
+          <div className="h-full">
+            <ApplicationGuideTab />
+          </div>
         </TabsContent>
         
-        <TabsContent value="suggestions" className="flex-grow p-0 m-0 overflow-auto">
-          <ScrollArea className="h-full">
-            <div className="p-4">
-              <GrantSuggestionsTab />
-            </div>
-          </ScrollArea>
+        <TabsContent value="suggestions" className="flex-grow p-0 m-0">
+          <div className="h-full">
+            <GrantSuggestionsTab />
+          </div>
         </TabsContent>
       </Tabs>
     </Card>

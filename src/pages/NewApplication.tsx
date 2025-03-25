@@ -17,8 +17,11 @@ type Grant = {
   title: string;
   organization: string;
   deadline: string;
-  amount: string;
+  amount: string; // Changed to string to match the type definition
   category: string;
+  description?: string;
+  requirements?: string[];
+  created_at?: string;
 };
 
 const NewApplication = () => {
@@ -39,8 +42,14 @@ const NewApplication = () => {
           
         if (error) throw error;
         
-        setGrants(data || []);
-        setFilteredGrants(data || []);
+        // Convert the amount to string for each grant
+        const grantsWithStringAmount = data?.map(grant => ({
+          ...grant,
+          amount: String(grant.amount)
+        })) || [];
+        
+        setGrants(grantsWithStringAmount);
+        setFilteredGrants(grantsWithStringAmount);
       } catch (error) {
         console.error('Error fetching grants:', error);
       } finally {

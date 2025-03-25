@@ -14,6 +14,7 @@ import GrantAssistant from "./pages/GrantAssistant";
 import Applications from "./pages/Applications";
 import NewApplication from "./pages/NewApplication";
 import { ChatBot } from "./components/ChatBot";
+import { GrantApplicationForm } from "./components/GrantApplicationForm";
 
 const queryClient = new QueryClient();
 

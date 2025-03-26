@@ -7,10 +7,13 @@ import { useAuth } from "@/context/AuthContext";
 import { DocumentUpload } from "./DocumentUpload";
 import { DocumentList } from "./DocumentList";
 import { DocumentItemType } from "./DocumentItem";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 export const DocumentManager = () => {
   const [documents, setDocuments] = useState<DocumentItemType[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -54,9 +57,16 @@ export const DocumentManager = () => {
     }
   };
 
-  const filteredDocuments = selectedCategory === "all"
-    ? documents
-    : documents.filter(doc => doc.metadata.category === selectedCategory);
+  const filteredDocuments = documents
+    .filter(doc => selectedCategory === "all" || doc.metadata.category === selectedCategory)
+    .filter(doc => {
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        doc.fileName.toLowerCase().includes(query) ||
+        (doc.metadata.tags && doc.metadata.tags.some(tag => tag.toLowerCase().includes(query)))
+      );
+    });
 
   return (
     <Card>
@@ -64,6 +74,16 @@ export const DocumentManager = () => {
         <CardTitle className="text-xl">Document Manager</CardTitle>
         <CardDescription>Upload and manage your grant-related documents</CardDescription>
         <div className="flex flex-wrap gap-2 mt-2">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search documents..." 
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by category" />
@@ -87,6 +107,7 @@ export const DocumentManager = () => {
         <DocumentList 
           documents={filteredDocuments} 
           onDocumentsChanged={fetchDocuments}
+          searchQuery={searchQuery}
         />
       </CardContent>
     </Card>

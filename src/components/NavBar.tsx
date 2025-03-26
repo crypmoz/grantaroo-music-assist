@@ -9,9 +9,13 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { LayoutDashboard } from "lucide-react";
 
 export function NavBar() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <NavigationMenu className="max-w-full w-full justify-start">
       <NavigationMenuList className="space-x-2">
@@ -64,6 +68,17 @@ export function NavBar() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
+
+        {isAuthenticated && (
+          <NavigationMenuItem>
+            <Link to="/dashboard">
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <LayoutDashboard className="h-4 w-4 mr-1" />
+                Dashboard
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+        )}
       </NavigationMenuList>
     </NavigationMenu>
   );

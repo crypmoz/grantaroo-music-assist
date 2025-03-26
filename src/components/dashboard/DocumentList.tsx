@@ -8,9 +8,10 @@ import { toast } from "sonner";
 interface DocumentListProps {
   documents: DocumentItemType[];
   onDocumentsChanged: () => void;
+  searchQuery?: string;
 }
 
-export const DocumentList = ({ documents, onDocumentsChanged }: DocumentListProps) => {
+export const DocumentList = ({ documents, onDocumentsChanged, searchQuery = "" }: DocumentListProps) => {
   const deleteDocument = async (id: string, filePath: string) => {
     try {
       // Delete from storage
@@ -44,7 +45,7 @@ export const DocumentList = ({ documents, onDocumentsChanged }: DocumentListProp
     <ScrollArea className="h-[300px] pr-4">
       {documents.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
-          No documents found
+          {searchQuery ? "No documents found matching your search" : "No documents found"}
         </div>
       ) : (
         <div className="space-y-3">
@@ -54,6 +55,7 @@ export const DocumentList = ({ documents, onDocumentsChanged }: DocumentListProp
               document={doc} 
               onDelete={deleteDocument}
               onTagAdded={handleTagAdded}
+              searchHighlight={searchQuery}
             />
           ))}
         </div>

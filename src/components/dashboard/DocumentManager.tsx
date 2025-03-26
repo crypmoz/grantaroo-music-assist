@@ -1,14 +1,16 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { FileText, Trash2, Download, Clock, Tag } from "lucide-react";
-import { toast } from "sonner";
+import { FileUp, Trash2, Tag, File } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/context/AuthContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 type DocumentItem = {
   id: string;
@@ -25,53 +27,102 @@ type DocumentItem = {
 
 export const DocumentManager = () => {
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
-    
     fetchDocuments();
-  }, [user]);
+  }, []);
 
   const fetchDocuments = async () => {
-    setIsLoading(true);
+    if (!user) return;
     
     try {
       const { data, error } = await supabase
         .from('grant_documents')
         .select('*')
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id);
         
       if (error) throw error;
       
-      setDocuments(data.map(doc => ({
-        id: doc.id,
-        fileName: doc.file_name,
-        fileType: doc.file_type,
-        filePath: doc.file_path,
-        createdAt: doc.created_at,
-        metadata: doc.metadata || {}
-      })));
+      if (data) {
+        const formattedDocs = data.map(doc => ({
+          id: doc.id,
+          fileName: doc.file_name,
+          fileType: doc.file_type,
+          filePath: doc.file_path,
+          createdAt: new Date(doc.created_at).toLocaleDateString(),
+          metadata: doc.metadata || { tags: [], category: 'general' }
+        }));
+        
+        setDocuments(formattedDocs);
+      }
     } catch (error) {
       console.error("Error fetching documents:", error);
-      toast.error("Failed to load documents");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const uploadDocument = async () => {
+    if (!selectedFile || !user) return;
+    
+    setIsUploading(true);
+    
+    try {
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('grant_resources')
+        .upload(filePath, selectedFile);
+        
+      if (uploadError) throw uploadError;
+      
+      const { error: insertError } = await supabase
+        .from('grant_documents')
+        .insert({
+          user_id: user.id,
+          file_name: selectedFile.name,
+          file_type: selectedFile.type,
+          file_path: filePath,
+          metadata: {
+            size: selectedFile.size,
+            category: 'grant',
+            tags: []
+          }
+        });
+        
+      if (insertError) throw insertError;
+      
+      setSelectedFile(null);
+      fetchDocuments();
+      toast.success("Document uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      toast.error("Failed to upload document");
     } finally {
-      setIsLoading(false);
+      setIsUploading(false);
     }
   };
 
   const deleteDocument = async (id: string, filePath: string) => {
     try {
-      // First delete from storage
-      const { error: storageError } = await supabase
-        .storage
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
         .from('grant_resources')
         .remove([filePath]);
         
       if (storageError) throw storageError;
       
-      // Then delete record from database
+      // Delete from database
       const { error: dbError } = await supabase
         .from('grant_documents')
         .delete()
@@ -79,150 +130,191 @@ export const DocumentManager = () => {
         
       if (dbError) throw dbError;
       
-      setDocuments(documents.filter(doc => doc.id !== id));
-      toast.success("Document deleted successfully");
+      // Remove from local state
+      setDocuments(prev => prev.filter(doc => doc.id !== id));
+      toast.success("Document deleted");
     } catch (error) {
       console.error("Error deleting document:", error);
       toast.error("Failed to delete document");
     }
   };
 
-  const downloadDocument = async (filePath: string, fileName: string) => {
+  const addTag = async (documentId: string, newTag: string) => {
+    const document = documents.find(doc => doc.id === documentId);
+    if (!document) return;
+    
+    const currentTags = document.metadata.tags || [];
+    const updatedTags = [...currentTags, newTag];
+    
     try {
-      const { data, error } = await supabase
-        .storage
-        .from('grant_resources')
-        .download(filePath);
+      const { error } = await supabase
+        .from('grant_documents')
+        .update({
+          metadata: { ...document.metadata, tags: updatedTags }
+        })
+        .eq('id', documentId);
         
       if (error) throw error;
       
-      // Create download link
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Update local state
+      setDocuments(prev => prev.map(doc => 
+        doc.id === documentId 
+          ? { ...doc, metadata: { ...doc.metadata, tags: updatedTags } } 
+          : doc
+      ));
+      
+      toast.success("Tag added");
     } catch (error) {
-      console.error("Error downloading document:", error);
-      toast.error("Failed to download document");
+      console.error("Error adding tag:", error);
+      toast.error("Failed to add tag");
     }
   };
 
-  const getFileIcon = (fileType: string) => {
-    if (fileType.includes('pdf')) {
-      return <FileText className="h-5 w-5 text-red-500" />;
-    } else if (fileType.includes('word') || fileType.includes('document')) {
-      return <FileText className="h-5 w-5 text-blue-500" />;
-    } else {
-      return <FileText className="h-5 w-5 text-gray-500" />;
-    }
-  };
-
-  const formatFileSize = (bytes?: number) => {
-    if (!bytes) return "Unknown size";
-    if (bytes < 1024) return bytes + ' bytes';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    else return (bytes / 1048576).toFixed(1) + ' MB';
-  };
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Grant Documents</CardTitle>
-          <CardDescription>Manage your uploaded grant resources</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center space-x-4 mb-4">
-              <Skeleton className="h-12 w-12 rounded-md" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[250px]" />
-                <Skeleton className="h-4 w-[150px]" />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
+  const filteredDocuments = selectedCategory === "all"
+    ? documents
+    : documents.filter(doc => doc.metadata.category === selectedCategory);
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Grant Documents</CardTitle>
-        <CardDescription>Manage your uploaded grant resources</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {documents.length === 0 ? (
-          <div className="text-center py-6">
-            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-            <p className="text-muted-foreground">No documents uploaded yet</p>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={() => window.location.href = '/assistant'}
-            >
-              Upload Documents
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {documents.map((doc) => (
-              <div key={doc.id} className="flex items-start justify-between p-3 border rounded-lg">
-                <div className="flex items-start space-x-3">
-                  <div className="bg-muted p-2 rounded-md">
-                    {getFileIcon(doc.fileType)}
-                  </div>
-                  <div>
-                    <h4 className="font-medium">{doc.fileName}</h4>
-                    <div className="flex items-center text-sm text-muted-foreground mt-1">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {format(new Date(doc.createdAt), 'MMM d, yyyy')}
-                      <span className="mx-2">•</span>
-                      {formatFileSize(doc.metadata?.size)}
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {doc.metadata?.tags?.map((tag, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">
-                          <Tag className="h-3 w-3 mr-1" />
-                          {tag}
-                        </Badge>
-                      ))}
-                      {doc.metadata?.category && (
-                        <Badge variant="secondary" className="text-xs">
-                          {doc.metadata.category}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl">Document Manager</CardTitle>
+        <CardDescription>Upload and manage your grant-related documents</CardDescription>
+        <div className="flex flex-wrap gap-2 mt-2">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Documents</SelectItem>
+              <SelectItem value="grant">Grant Applications</SelectItem>
+              <SelectItem value="portfolio">Portfolio</SelectItem>
+              <SelectItem value="financial">Financial</SelectItem>
+              <SelectItem value="general">General</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" className="ml-auto">
+                <FileUp className="h-4 w-4 mr-2" />
+                Upload
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Upload Document</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="border-2 border-dashed rounded-md p-6 text-center">
+                  <input 
+                    type="file"
+                    id="document-upload"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileChange}
+                  />
+                  <label 
+                    htmlFor="document-upload"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <FileUp className="h-10 w-10 text-muted-foreground mb-2" />
+                    <p className="font-medium">Click to upload</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      PDF or Word documents up to 10MB
+                    </p>
+                  </label>
                 </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => downloadDocument(doc.filePath, doc.fileName)}
-                    title="Download"
+                
+                {selectedFile && (
+                  <div className="bg-muted p-3 rounded-md">
+                    <p className="text-sm font-medium truncate">{selectedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex justify-end mt-4">
+                  <Button 
+                    onClick={uploadDocument} 
+                    disabled={!selectedFile || isUploading}
                   >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => deleteDocument(doc.id, doc.filePath)}
-                    className="text-destructive"
-                    title="Delete"
-                  >
-                    <Trash2 className="h-4 w-4" />
+                    {isUploading ? "Uploading..." : "Upload Document"}
                   </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-[300px] pr-4">
+          {filteredDocuments.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No documents found
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredDocuments.map((doc) => (
+                <div key={doc.id} className="border rounded-md p-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start">
+                      <File className="h-5 w-5 text-blue-500 mt-1 mr-3" />
+                      <div>
+                        <p className="font-medium truncate max-w-[180px]">{doc.fileName}</p>
+                        <p className="text-xs text-muted-foreground">{doc.createdAt}</p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {doc.metadata.tags && doc.metadata.tags.map((tag, i) => (
+                            <Badge key={i} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Tag className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Add Tag</DialogTitle>
+                          </DialogHeader>
+                          <div className="flex items-center space-x-2">
+                            <Input placeholder="Enter tag" id={`tag-input-${doc.id}`} />
+                            <Button 
+                              onClick={() => {
+                                const input = document.getElementById(`tag-input-${doc.id}`) as HTMLInputElement;
+                                if (input && input.value) {
+                                  addTag(doc.id, input.value);
+                                  input.value = '';
+                                }
+                              }}
+                            >
+                              Add
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => deleteDocument(doc.id, doc.filePath)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );

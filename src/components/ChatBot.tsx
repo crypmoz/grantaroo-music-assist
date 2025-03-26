@@ -15,6 +15,7 @@ import { getBasicAIResponse } from "@/context/chatbot/helpers";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { PaywallScreen } from "./PaywallScreen";
 
 type FreeChatMessage = {
   id: string;
@@ -31,6 +32,9 @@ type ProfileState = {
   [key: string]: string;
 };
 
+// Define the ChatStep type to ensure proper type checking
+type ChatStep = "chat" | "profile" | "paywall";
+
 export const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -38,7 +42,7 @@ export const ChatBot = () => {
   const [messages, setMessages] = useState<FreeChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [input, setInput] = useState("");
-  const [currentStep, setCurrentStep] = useState<"chat" | "profile" | "paywall">("chat");
+  const [currentStep, setCurrentStep] = useState<ChatStep>("chat");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [profile, setProfile] = useState<ProfileState>({
     careerStage: "",
@@ -325,6 +329,81 @@ export const ChatBot = () => {
     return formatted;
   };
 
+  const profileQuestions = [
+    {
+      field: "careerStage",
+      question: "What stage are you at in your music career?",
+      component: (
+        <Select 
+          onValueChange={(value) => handleProfileChange("careerStage", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select career stage" />
+          </SelectTrigger>
+          <SelectContent>
+            {careerStages.map((stage) => (
+              <SelectItem key={stage} value={stage}>
+                {stage}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    },
+    {
+      field: "genre",
+      question: "What's your primary music genre?",
+      component: (
+        <Select 
+          onValueChange={(value) => handleProfileChange("genre", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select genre" />
+          </SelectTrigger>
+          <SelectContent>
+            {musicGenres.map((genre) => (
+              <SelectItem key={genre} value={genre}>
+                {genre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    },
+    {
+      field: "projectType",
+      question: "What type of project are you seeking funding for?",
+      component: (
+        <Select 
+          onValueChange={(value) => handleProfileChange("projectType", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select project type" />
+          </SelectTrigger>
+          <SelectContent>
+            {projectTypes.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    },
+    {
+      field: "projectBudget",
+      question: "What's your estimated project budget in CAD?",
+      component: (
+        <Textarea
+          placeholder="e.g., 10000"
+          onChange={(e) => handleProfileChange("projectBudget", e.target.value)}
+          className="resize-none"
+          rows={2}
+        />
+      )
+    }
+  ];
+
   // Show minimized chat button
   if (!isOpen) {
     return (
@@ -381,7 +460,7 @@ export const ChatBot = () => {
         </CardHeader>
         
         <CardContent className="p-0 flex flex-col h-[calc(100%-64px)]">
-          {currentStep === "chat" || currentStep === "profile" ? (
+          {(currentStep === "chat" || currentStep === "profile") && (
             <>
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="space-y-4">
@@ -547,7 +626,8 @@ export const ChatBot = () => {
                 </div>
               )}
             </>
-          ) : (
+          )}
+          {currentStep === "paywall" && (
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
               <div className="max-w-sm">
                 <motion.div

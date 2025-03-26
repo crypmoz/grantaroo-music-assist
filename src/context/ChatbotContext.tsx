@@ -12,6 +12,15 @@ export type MessageType = {
   role: "user" | "assistant";
   timestamp: Date;
   sender?: "user" | "bot"; // For backward compatibility
+  attachments?: UploadedFile[]; // Added for file attachments
+};
+
+export type UploadedFile = {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  data: File;
 };
 
 export type GrantProfileType = {
@@ -48,8 +57,9 @@ type ChatbotContextType = {
   suggestedGrants: GrantType[];
   successfulAppData: SuccessfulAppDataType;
   isLoading: boolean;
+  uploadedFiles: UploadedFile[]; // Added for file uploads
   toggleEnhancedAI: () => void;
-  addMessage: (content: string, role: "user" | "assistant") => Promise<void>;
+  addMessage: (content: string, role: "user" | "assistant", attachments?: UploadedFile[]) => Promise<void>; // Updated to include attachments
   setGrantProfile: (profile: GrantProfileType) => void;
   setUserProfile: (profile: GrantProfileType) => void;
   setCurrentStep: (step: "welcome" | "profile" | "suggestions" | "application-form") => void;
@@ -58,6 +68,8 @@ type ChatbotContextType = {
   setSuccessfulAppData: (data: SuccessfulAppDataType) => void;
   setIsLoading: (loading: boolean) => void;
   getEnhancedResponse: (message: string) => Promise<string>;
+  addUploadedFile: (file: UploadedFile) => void; // Added for file uploads
+  removeUploadedFile: (fileId: string) => void; // Added for file uploads
 };
 
 const defaultContext: ChatbotContextType = {
@@ -70,6 +82,7 @@ const defaultContext: ChatbotContextType = {
   suggestedGrants: [],
   successfulAppData: { appliedFactors: [], isShowingExamples: false },
   isLoading: false,
+  uploadedFiles: [], // Added for file uploads
   toggleEnhancedAI: () => {},
   addMessage: async () => {},
   setGrantProfile: () => {},
@@ -80,6 +93,8 @@ const defaultContext: ChatbotContextType = {
   setSuccessfulAppData: () => {},
   setIsLoading: () => {},
   getEnhancedResponse: async () => "",
+  addUploadedFile: () => {}, // Added for file uploads
+  removeUploadedFile: () => {}, // Added for file uploads
 };
 
 const ChatbotContext = createContext<ChatbotContextType>(defaultContext);
@@ -99,6 +114,7 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
     appliedFactors: [],
     isShowingExamples: false
   });
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]); // Added for file uploads
   
   const { isAuthenticated, isPaidUser } = useAuth();
 
@@ -108,6 +124,14 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
 
   const clearMessages = () => {
     setMessages([]);
+  };
+
+  const addUploadedFile = (file: UploadedFile) => {
+    setUploadedFiles(prev => [...prev, file]);
+  };
+  
+  const removeUploadedFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
   };
 
   const getEnhancedResponse = async (userMessage: string): Promise<string> => {
@@ -128,15 +152,21 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addMessage = async (content: string, role: "user" | "assistant") => {
+  const addMessage = async (content: string, role: "user" | "assistant", attachments?: UploadedFile[]) => {
     const newMessage: MessageType = {
       id: uuidv4(),
       content,
       role,
       timestamp: new Date(),
+      attachments: attachments || [],
     };
 
     setMessages((prev) => [...prev, newMessage]);
+
+    // Clear uploaded files after sending them
+    if (attachments && attachments.length > 0) {
+      setUploadedFiles([]);
+    }
 
     // If it's a user message, generate a response
     if (role === "user" && (isAuthenticated && isPaidUser)) {
@@ -213,6 +243,7 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
         suggestedGrants,
         successfulAppData,
         isLoading,
+        uploadedFiles,
         toggleEnhancedAI,
         addMessage,
         setGrantProfile,
@@ -223,6 +254,8 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
         setSuccessfulAppData,
         setIsLoading,
         getEnhancedResponse,
+        addUploadedFile,
+        removeUploadedFile,
       }}
     >
       {children}

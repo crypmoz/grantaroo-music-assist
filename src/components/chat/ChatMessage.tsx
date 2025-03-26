@@ -1,8 +1,9 @@
 
-import { MessageType } from "@/context/ChatbotContext";
+import { MessageType, UploadedFile } from "@/context/ChatbotContext";
 import { cn } from "@/lib/utils";
-import { Bot, User } from "lucide-react";
+import { Bot, User, FileText, Download } from "lucide-react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 type ChatMessageProps = {
   message: MessageType;
@@ -38,6 +39,18 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     
     return formatted;
   };
+
+  // Function to handle file download
+  const handleFileDownload = (file: UploadedFile) => {
+    const url = URL.createObjectURL(file.data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
   
   return (
     <div
@@ -66,6 +79,43 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
           className="whitespace-pre-wrap text-sm"
           dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
         />
+        
+        {/* Display file attachments if any */}
+        {message.attachments && message.attachments.length > 0 && (
+          <div className="mt-2 space-y-1">
+            <p className={cn(
+              "text-xs font-medium",
+              isBot ? "text-gray-500" : "text-white/80"
+            )}>
+              Attachments:
+            </p>
+            <div className="flex flex-col gap-1">
+              {message.attachments.map((file) => (
+                <div 
+                  key={file.id}
+                  className={cn(
+                    "flex items-center justify-between rounded p-2 text-xs",
+                    isBot ? "bg-gray-50" : "bg-blue-700/50"
+                  )}
+                >
+                  <div className="flex items-center space-x-2 overflow-hidden">
+                    <FileText className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{file.name}</span>
+                  </div>
+                  <Button 
+                    variant={isBot ? "outline" : "secondary"}
+                    size="icon"
+                    className="h-5 w-5"
+                    onClick={() => handleFileDownload(file)}
+                  >
+                    <Download className="h-2 w-2" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
         <div className={cn(
           "text-xs mt-1",
           isBot ? "text-gray-400" : "text-white/70"

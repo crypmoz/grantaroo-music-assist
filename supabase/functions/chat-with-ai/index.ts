@@ -14,11 +14,11 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userProfile } = await req.json()
+    const { message, userProfile, fileContents } = await req.json()
     
-    if (!message) {
+    if (!message && !fileContents) {
       return new Response(
-        JSON.stringify({ error: "Message is required" }),
+        JSON.stringify({ error: "Message or file contents are required" }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
@@ -41,6 +41,11 @@ serve(async (req) => {
       systemPrompt += ` The user is a ${userProfile.careerStage} musician in the ${userProfile.genre} genre with ${userProfile.streamingNumbers} streaming numbers. They've previously received ${userProfile.previousGrants} grants. Their current project is a ${userProfile.projectType} with a budget of ${userProfile.projectBudget}.`
     }
 
+    // Add file context if available
+    if (fileContents) {
+      systemPrompt += ` The user has shared document(s) containing additional information. Use this information to provide more tailored advice.`
+    }
+
     // Fetch some recent successful applications from the database for additional context
     const { data: successfulApps, error: appsError } = await supabase
       .from('applications')
@@ -52,7 +57,13 @@ serve(async (req) => {
       systemPrompt += ` Based on successful applications, consider these factors: detailed project descriptions, clear timelines, and itemized budgets.`
     }
 
-    console.log("Sending prompt to DeepSeek:", message)
+    // Construct user message with file contents if available
+    let userMessage = message
+    if (fileContents) {
+      userMessage += `\n\nFile contents:\n${fileContents}`
+    }
+
+    console.log("Sending prompt to DeepSeek:", userMessage)
     console.log("System prompt:", systemPrompt)
 
     // Make API call to DeepSeek
@@ -66,7 +77,7 @@ serve(async (req) => {
         model: "deepseek-chat",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: message }
+          { role: "user", content: userMessage }
         ],
         stream: false
       })
@@ -83,9 +94,10 @@ serve(async (req) => {
     
     // Store the interaction in the database for future training
     await supabase.from('chat_history').insert({
-      user_message: message,
+      user_message: userMessage,
       assistant_response: aiResponse,
-      user_profile: userProfile || {}
+      user_profile: userProfile || {},
+      has_file_attachments: fileContents ? true : false
     }).catch(err => {
       console.error("Error storing chat history:", err)
       // Continue execution even if storing fails

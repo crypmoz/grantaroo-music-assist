@@ -55,6 +55,7 @@ export const ChatTab = () => {
                 <h3 className="text-xl font-medium">Welcome to Grant Assistant</h3>
                 <p className="text-muted-foreground max-w-sm mt-2">
                   I'm here to help you find and apply for music grants that match your profile.
+                  You can also upload documents to help me understand your work better.
                 </p>
               </div>
               

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { FileUpload } from "./FileUpload";
+import { Progress } from "@/components/ui/progress";
 
 export const ChatInput = () => {
   const [input, setInput] = useState("");
@@ -61,6 +62,20 @@ export const ChatInput = () => {
 
   return (
     <div className="flex flex-col gap-2 p-2">
+      {isTyping && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="px-2 py-1"
+        >
+          <div className="flex items-center gap-2 text-xs text-blue-600 mb-1">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            <span>Assistant is typing...</span>
+          </div>
+          <Progress value={70} className="h-1 w-full" />
+        </motion.div>
+      )}
+      
       <div className="flex flex-col gap-1">
         <div className="flex space-x-2">
           {suggestionPrompts.map((prompt, i) => (
@@ -102,7 +117,7 @@ export const ChatInput = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Type your message..."
+              placeholder={isTyping ? "Wait for assistant to finish..." : "Type your message..."}
               className="resize-none min-h-[60px] rounded-xl bg-white/80 backdrop-blur-sm border-muted shadow-sm pr-10"
               disabled={isLoading || isTyping}
             />
@@ -112,6 +127,7 @@ export const ChatInput = () => {
               size="icon"
               className="absolute right-2 bottom-2 h-8 w-8 text-muted-foreground hover:text-primary"
               onClick={toggleFileUpload}
+              disabled={isLoading || isTyping}
             >
               <Paperclip 
                 className={cn(
@@ -148,6 +164,7 @@ export const ChatInput = () => {
             "flex items-center gap-1 text-xs font-medium transition-colors duration-200",
             useEnhancedAI ? "text-blue-600" : "text-muted-foreground"
           )}
+          disabled={isLoading || isTyping}
         >
           <Sparkles className={cn(
             "h-3 w-3", 

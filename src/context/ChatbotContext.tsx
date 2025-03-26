@@ -54,7 +54,14 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getEnhancedResponseWithProfile = async (userMessage: string): Promise<string> => {
-    return getEnhancedResponse(userMessage, userProfile || grantProfile);
+    try {
+      const response = await getEnhancedResponse(userMessage, userProfile || grantProfile);
+      return response;
+    } catch (error) {
+      console.error("Error in enhanced response:", error);
+      // Fallback to basic response if enhanced fails
+      return getBasicAIResponse(userMessage);
+    }
   };
 
   const addMessage = async (content: string, role: "user" | "assistant", attachments?: UploadedFile[]) => {
@@ -74,13 +81,14 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // If it's a user message, generate a response
-    if (role === "user" && (isAuthenticated && isPaidUser)) {
+    if (role === "user") {
       setIsTyping(true);
+      setIsLoading(true);
       
       try {
         let response;
         
-        if (useEnhancedAI) {
+        if (useEnhancedAI && isAuthenticated && isPaidUser) {
           // Use the Supabase edge function for enhanced AI
           response = await getEnhancedResponseWithProfile(content);
         } else {
@@ -112,6 +120,7 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
         setMessages((prev) => [...prev, errorMessage]);
       } finally {
         setIsTyping(false);
+        setIsLoading(false);
       }
     }
   };

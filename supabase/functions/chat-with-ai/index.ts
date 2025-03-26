@@ -14,7 +14,14 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userProfile, fileContents } = await req.json()
+    console.log("Received request to chat-with-ai function");
+    
+    const requestData = await req.json().catch(error => {
+      console.error("Error parsing request JSON:", error);
+      throw new Error("Invalid JSON in request body");
+    });
+    
+    const { message, userProfile, fileContents } = requestData;
     
     if (!message && !fileContents) {
       return new Response(
@@ -26,12 +33,19 @@ serve(async (req) => {
     // Create a Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error("Missing Supabase credentials");
+      throw new Error("Server configuration error: Missing Supabase credentials");
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Get API key from environment variables
     const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY") ?? ""
     if (!DEEPSEEK_API_KEY) {
-      throw new Error("Missing DeepSeek API key")
+      console.error("Missing DeepSeek API key");
+      throw new Error("Server configuration error: Missing DeepSeek API key");
     }
 
     // Construct context based on user profile if available
@@ -47,14 +61,21 @@ serve(async (req) => {
     }
 
     // Fetch some recent successful applications from the database for additional context
-    const { data: successfulApps, error: appsError } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('status', 'approved')
-      .limit(3)
-    
-    if (successfulApps && successfulApps.length > 0) {
-      systemPrompt += ` Based on successful applications, consider these factors: detailed project descriptions, clear timelines, and itemized budgets.`
+    try {
+      const { data: successfulApps, error: appsError } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('status', 'approved')
+        .limit(3)
+      
+      if (appsError) {
+        console.error("Error fetching successful applications:", appsError);
+      } else if (successfulApps && successfulApps.length > 0) {
+        systemPrompt += ` Based on successful applications, consider these factors: detailed project descriptions, clear timelines, and itemized budgets.`
+      }
+    } catch (dbError) {
+      console.error("Database query error:", dbError);
+      // Continue execution even if DB query fails
     }
 
     // Construct user message with file contents if available
@@ -63,55 +84,73 @@ serve(async (req) => {
       userMessage += `\n\nFile contents:\n${fileContents}`
     }
 
-    console.log("Sending prompt to DeepSeek:", userMessage)
-    console.log("System prompt:", systemPrompt)
+    console.log("System prompt:", systemPrompt);
+    console.log("Sending request to DeepSeek API");
 
     // Make API call to DeepSeek
-    const response = await fetch("https://api.deepseek.com/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage }
-        ],
-        stream: false
-      })
-    })
+    try {
+      const response = await fetch("https://api.deepseek.com/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "deepseek-chat",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessage }
+          ],
+          stream: false
+        })
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("DeepSeek API error:", errorText)
-      throw new Error(`DeepSeek API error: ${response.status}`)
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("DeepSeek API error:", errorText);
+        throw new Error(`DeepSeek API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.error("Invalid response format from DeepSeek API:", data);
+        throw new Error("Invalid response format from AI provider");
+      }
+      
+      const aiResponse = data.choices[0].message.content;
+      console.log("Successfully received response from DeepSeek API");
+      
+      // Store the interaction in the database for future training
+      try {
+        await supabase.from('chat_history').insert({
+          user_message: userMessage,
+          assistant_response: aiResponse,
+          user_profile: userProfile || {},
+          has_file_attachments: fileContents ? true : false
+        });
+        console.log("Successfully stored chat history in database");
+      } catch (dbError) {
+        console.error("Error storing chat history:", dbError);
+        // Continue execution even if storing fails
+      }
+
+      return new Response(
+        JSON.stringify({ response: aiResponse }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (apiError) {
+      console.error("Error calling DeepSeek API:", apiError);
+      throw apiError;
     }
-
-    const data = await response.json()
-    const aiResponse = data.choices[0].message.content
-    
-    // Store the interaction in the database for future training
-    await supabase.from('chat_history').insert({
-      user_message: userMessage,
-      assistant_response: aiResponse,
-      user_profile: userProfile || {},
-      has_file_attachments: fileContents ? true : false
-    }).catch(err => {
-      console.error("Error storing chat history:", err)
-      // Continue execution even if storing fails
-    })
-
-    return new Response(
-      JSON.stringify({ response: aiResponse }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
   } catch (error) {
-    console.error("Error:", error.message)
+    console.error("General error in chat-with-ai function:", error.message);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        response: "I'm having trouble connecting to my AI capabilities right now. Please try again in a moment, or ask me a different question." 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-    )
+    );
   }
-})
+});

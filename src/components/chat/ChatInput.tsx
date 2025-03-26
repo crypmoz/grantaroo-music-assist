@@ -16,34 +16,30 @@ export const ChatInput = () => {
     addMessage, 
     isTyping, 
     isLoading,
-    setIsLoading,
     useEnhancedAI, 
     toggleEnhancedAI,
-    getEnhancedResponse,
     uploadedFiles
   } = useChatbot();
 
   const handleSendMessage = async () => {
-    if ((!input.trim() && uploadedFiles.length === 0) || isLoading) return;
+    if ((!input.trim() && uploadedFiles.length === 0) || isLoading || isTyping) return;
     
     const messageText = input.trim() ? input.trim() : 
       uploadedFiles.length > 0 ? "I'm uploading some files for you to review." : "";
     
     // Add user message with any attachments
-    addMessage(messageText, "user", uploadedFiles.length > 0 ? [...uploadedFiles] : undefined);
-    setInput("");
-    setIsLoading(true);
-    setShowFileUpload(false);
-    
-    try {
-      // Get response from enhanced AI if enabled
-      const response = await getEnhancedResponse(messageText);
+    if (messageText) {
+      // Clear input before sending to give immediate feedback
+      setInput("");
+      setShowFileUpload(false);
       
-    } catch (error) {
-      console.error("Error getting response:", error);
-      toast.error("Sorry, I had trouble processing your request.");
-    } finally {
-      setIsLoading(false);
+      try {
+        // Send the message - the addMessage function will handle getting the AI response
+        await addMessage(messageText, "user", uploadedFiles.length > 0 ? [...uploadedFiles] : undefined);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        toast.error("Sorry, I had trouble sending your message.");
+      }
     }
   };
 

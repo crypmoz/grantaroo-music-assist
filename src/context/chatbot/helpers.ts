@@ -1,11 +1,13 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { GrantProfileType } from "./types";
+import { getAIGrantToolResponse } from "@/services/aiGrantToolService";
 
 // Enhanced AI response function
 export const getEnhancedResponse = async (userMessage: string, userProfile: GrantProfileType | null): Promise<string> => {
   try {
-    // Call the Supabase edge function for AI response
+    // First try with Supabase edge function
+    console.log("Attempting to use Supabase edge function for AI response");
     const { data, error } = await supabase.functions.invoke('chat-with-ai', {
       body: { 
         message: userMessage,
@@ -13,16 +15,37 @@ export const getEnhancedResponse = async (userMessage: string, userProfile: Gran
       }
     });
     
-    if (error) throw new Error(error.message);
-    return data.response || "I couldn't generate a response. Please try again.";
+    if (error) {
+      console.error("Supabase function error:", error);
+      throw new Error(error.message);
+    }
+    
+    if (data?.response) {
+      console.log("Successfully got response from Supabase function");
+      return data.response;
+    } else {
+      throw new Error("No response returned from Supabase function");
+    }
   } catch (error) {
-    console.error("Error in getEnhancedResponse:", error);
-    return "I'm having trouble connecting to my enhanced capabilities. Let me provide basic assistance instead.";
+    console.error("Error with Supabase chat function, trying fallback API:", error);
+    
+    // Try fallback to direct API
+    try {
+      console.log("Using fallback AI service");
+      const response = await getAIGrantToolResponse(userMessage, 
+        `You are a Toronto Music Grant Assistant. You provide expert advice on music grant applications. ${userProfile ? `The user is a ${userProfile.careerStage} musician in the ${userProfile.genre} genre.` : ''}`
+      );
+      return response;
+    } catch (secondError) {
+      console.error("Both AI services failed:", secondError);
+      return getBasicAIResponse(userMessage);
+    }
   }
 };
 
 // Basic AI response function
 export const getBasicAIResponse = async (userMessage: string): Promise<string> => {
+  console.log("Using basic AI response function");
   // Simple responses based on keywords in the user message
   const message = userMessage.toLowerCase();
   

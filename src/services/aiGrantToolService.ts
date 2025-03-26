@@ -28,6 +28,8 @@ export const getAIGrantToolResponse = async (
   context: string = "You are a Toronto Music Grant Assistant. Provide expert advice on music grant applications based on data from successful Ontario grants. Be specific and actionable."
 ): Promise<string> => {
   try {
+    console.log("Making API call to DeepSeek API");
+    
     const messages: AIGrantToolMessage[] = [
       { role: "system", content: context },
       { role: "user", content: userMessage },
@@ -46,6 +48,8 @@ export const getAIGrantToolResponse = async (
       }),
     });
 
+    console.log("API response status:", response.status);
+
     if (!response.ok) {
       const errorData = await response.text();
       console.error("AI Grant Tool API error:", errorData);
@@ -53,6 +57,8 @@ export const getAIGrantToolResponse = async (
     }
 
     const data = await response.json() as AIGrantToolResponse;
+    console.log("API response received successfully");
+    
     return data.choices[0].message.content;
   } catch (error) {
     console.error("Error calling AI Grant Tool API:", error);

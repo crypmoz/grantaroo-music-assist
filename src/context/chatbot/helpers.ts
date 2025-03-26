@@ -8,7 +8,7 @@ export const getEnhancedResponse = async (userMessage: string, userProfile: Gran
   try {
     // First try with Supabase edge function
     console.log("Attempting to use Supabase edge function for AI response");
-    const { data, error } = await supabase.functions.invoke('chat-with-ai', {
+    const { data, error } = await supabase.functions.invoke('grant-assistant', {
       body: { 
         message: userMessage,
         userProfile

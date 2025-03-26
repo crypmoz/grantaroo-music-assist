@@ -41,15 +41,22 @@ serve(async (req) => {
       systemPrompt += ` The user is a ${userProfile.careerStage} musician in the ${userProfile.genre} genre with ${userProfile.streamingNumbers} streaming numbers. They've previously received ${userProfile.previousGrants} grants. Their current project is a ${userProfile.projectType} with a budget of ${userProfile.projectBudget}.`
     }
 
-    // Fetch some recent successful applications from the database for additional context
-    const { data: successfulApps, error: appsError } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('status', 'approved')
+    // Fetch relevant documents from the database to enhance the response
+    const { data: relevantDocs, error: docsError } = await supabase
+      .from('grant_documents')
+      .select('content')
       .limit(3)
     
-    if (successfulApps && successfulApps.length > 0) {
-      systemPrompt += ` Based on successful applications, consider these factors: detailed project descriptions, clear timelines, and itemized budgets.`
+    if (relevantDocs && relevantDocs.length > 0) {
+      systemPrompt += " Based on the following resources: "
+      
+      relevantDocs.forEach((doc, index) => {
+        if (doc.content) {
+          // Add a short summary or excerpt from each document
+          const excerpt = doc.content.substring(0, 500) + "..."
+          systemPrompt += `Document ${index + 1}: ${excerpt} `
+        }
+      })
     }
 
     console.log("Sending prompt to DeepSeek:", message)

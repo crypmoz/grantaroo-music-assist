@@ -9,7 +9,7 @@ export const GrantSuggestionsTab = () => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4">
+      <div className="p-4 pb-16">
         {currentStep === "welcome" ? (
           <GrantProfileForm />
         ) : (

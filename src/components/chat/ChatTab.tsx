@@ -27,7 +27,7 @@ export const ChatTab = () => {
 
   return (
     <>
-      <ScrollArea className="flex-grow p-4">
+      <ScrollArea className="flex-grow p-4 pb-0">
         <div className="space-y-4 pb-4">
           {messages.map((message, index) => (
             <motion.div

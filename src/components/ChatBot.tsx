@@ -55,6 +55,82 @@ export const ChatBot = () => {
   
   const { isAuthenticated, isPaidUser } = useAuth();
 
+  // Define profile questions just once
+  const profileQuestions = [
+    {
+      field: "careerStage",
+      question: "What stage are you at in your music career?",
+      component: (
+        <Select 
+          onValueChange={(value) => handleProfileChange("careerStage", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select career stage" />
+          </SelectTrigger>
+          <SelectContent>
+            {careerStages.map((stage) => (
+              <SelectItem key={stage} value={stage}>
+                {stage}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    },
+    {
+      field: "genre",
+      question: "What's your primary music genre?",
+      component: (
+        <Select 
+          onValueChange={(value) => handleProfileChange("genre", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select genre" />
+          </SelectTrigger>
+          <SelectContent>
+            {musicGenres.map((genre) => (
+              <SelectItem key={genre} value={genre}>
+                {genre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    },
+    {
+      field: "projectType",
+      question: "What type of project are you seeking funding for?",
+      component: (
+        <Select 
+          onValueChange={(value) => handleProfileChange("projectType", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select project type" />
+          </SelectTrigger>
+          <SelectContent>
+            {projectTypes.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    },
+    {
+      field: "projectBudget",
+      question: "What's your estimated project budget in CAD?",
+      component: (
+        <Textarea
+          placeholder="e.g., 10000"
+          onChange={(e) => handleProfileChange("projectBudget", e.target.value)}
+          className="resize-none"
+          rows={2}
+        />
+      )
+    }
+  ];
+
   // Scroll to bottom of chat when messages update
   useEffect(() => {
     if (scrollRef.current) {
@@ -198,81 +274,6 @@ export const ChatBot = () => {
     }
   };
 
-  const profileQuestions = [
-    {
-      field: "careerStage",
-      question: "What stage are you at in your music career?",
-      component: (
-        <Select 
-          onValueChange={(value) => handleProfileChange("careerStage", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select career stage" />
-          </SelectTrigger>
-          <SelectContent>
-            {careerStages.map((stage) => (
-              <SelectItem key={stage} value={stage}>
-                {stage}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )
-    },
-    {
-      field: "genre",
-      question: "What's your primary music genre?",
-      component: (
-        <Select 
-          onValueChange={(value) => handleProfileChange("genre", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select genre" />
-          </SelectTrigger>
-          <SelectContent>
-            {musicGenres.map((genre) => (
-              <SelectItem key={genre} value={genre}>
-                {genre}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )
-    },
-    {
-      field: "projectType",
-      question: "What type of project are you seeking funding for?",
-      component: (
-        <Select 
-          onValueChange={(value) => handleProfileChange("projectType", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select project type" />
-          </SelectTrigger>
-          <SelectContent>
-            {projectTypes.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )
-    },
-    {
-      field: "projectBudget",
-      question: "What's your estimated project budget in CAD?",
-      component: (
-        <Textarea
-          placeholder="e.g., 10000"
-          onChange={(e) => handleProfileChange("projectBudget", e.target.value)}
-          className="resize-none"
-          rows={2}
-        />
-      )
-    }
-  ];
-
   const handleProfileChange = (field: string, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
   };
@@ -328,81 +329,6 @@ export const ChatBot = () => {
     
     return formatted;
   };
-
-  const profileQuestions = [
-    {
-      field: "careerStage",
-      question: "What stage are you at in your music career?",
-      component: (
-        <Select 
-          onValueChange={(value) => handleProfileChange("careerStage", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select career stage" />
-          </SelectTrigger>
-          <SelectContent>
-            {careerStages.map((stage) => (
-              <SelectItem key={stage} value={stage}>
-                {stage}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )
-    },
-    {
-      field: "genre",
-      question: "What's your primary music genre?",
-      component: (
-        <Select 
-          onValueChange={(value) => handleProfileChange("genre", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select genre" />
-          </SelectTrigger>
-          <SelectContent>
-            {musicGenres.map((genre) => (
-              <SelectItem key={genre} value={genre}>
-                {genre}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )
-    },
-    {
-      field: "projectType",
-      question: "What type of project are you seeking funding for?",
-      component: (
-        <Select 
-          onValueChange={(value) => handleProfileChange("projectType", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select project type" />
-          </SelectTrigger>
-          <SelectContent>
-            {projectTypes.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )
-    },
-    {
-      field: "projectBudget",
-      question: "What's your estimated project budget in CAD?",
-      component: (
-        <Textarea
-          placeholder="e.g., 10000"
-          onChange={(e) => handleProfileChange("projectBudget", e.target.value)}
-          className="resize-none"
-          rows={2}
-        />
-      )
-    }
-  ];
 
   // Show minimized chat button
   if (!isOpen) {

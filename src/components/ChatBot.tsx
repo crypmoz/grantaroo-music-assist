@@ -507,12 +507,12 @@ export const ChatBot = () => {
                         onKeyDown={handleKeyPress}
                         placeholder={isTyping ? "Wait for assistant to finish..." : "Type your message..."}
                         className="resize-none min-h-[60px] rounded-xl bg-white/80 backdrop-blur-sm border-muted shadow-sm pr-10"
-                        disabled={isTyping || currentStep === "profile"}
+                        disabled={isTyping}
                       />
                     </div>
                     <Button 
                       onClick={handleSendMessage} 
-                      disabled={(input.trim().length === 0) || isTyping || currentStep === "profile"}
+                      disabled={(input.trim().length === 0) || isTyping}
                       className="h-[60px] w-[60px] rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                     >
                       {isTyping ? (

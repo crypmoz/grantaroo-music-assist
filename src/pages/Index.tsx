@@ -16,7 +16,9 @@ import { useAuth } from "@/context/AuthContext";
 import { 
   LayoutDashboard, 
   FileText, 
-  Sparkles 
+  Sparkles,
+  Music,
+  CheckCircle
 } from "lucide-react";
 
 const Index = () => {
@@ -39,27 +41,40 @@ const Index = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="py-8 bg-gray-50"
+                  className="py-10 bg-gradient-to-b from-gray-50 to-white"
                 >
                   <div className="container mx-auto px-4">
+                    <h2 className="text-2xl font-bold text-center mb-6">Quick Access</h2>
                     <div className="flex flex-wrap justify-center gap-4">
                       <Link to="/dashboard">
-                        <Button variant="outline" size="lg" className="flex items-center gap-2">
-                          <LayoutDashboard className="h-5 w-5" />
+                        <Button 
+                          variant="outline" 
+                          size="lg" 
+                          className="flex items-center gap-2 border-gray-200 shadow-sm hover:shadow-md transition-all"
+                        >
+                          <LayoutDashboard className="h-5 w-5 text-blue-600" />
                           My Dashboard
                         </Button>
                       </Link>
                       
                       <Link to="/applications">
-                        <Button variant="outline" size="lg" className="flex items-center gap-2">
-                          <FileText className="h-5 w-5" />
+                        <Button 
+                          variant="outline" 
+                          size="lg" 
+                          className="flex items-center gap-2 border-gray-200 shadow-sm hover:shadow-md transition-all"
+                        >
+                          <FileText className="h-5 w-5 text-indigo-600" />
                           My Applications
                         </Button>
                       </Link>
                       
                       {isPaidUser && (
                         <Link to="/assistant">
-                          <Button variant="default" size="lg" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                          <Button 
+                            variant="default" 
+                            size="lg" 
+                            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all"
+                          >
                             <Sparkles className="h-5 w-5" />
                             Grant Assistant
                           </Button>
@@ -76,13 +91,20 @@ const Index = () => {
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }} 
-                className="bg-gray-50 my-0 py-[5px] px-0"
+                className="bg-white py-10 px-0"
               >
                 <div className="container mx-auto px-4">
                   <div className="text-center mb-8">
                     <p className="text-gray-500 uppercase tracking-wider text-sm font-medium">
                       Trusted by musicians across Canada
                     </p>
+                  </div>
+                  <div className="flex flex-wrap justify-center items-center gap-8 opacity-70">
+                    <Music className="h-6 w-6 text-blue-600" />
+                    <div className="h-10 w-24 bg-gray-200 rounded-md"></div>
+                    <div className="h-10 w-32 bg-gray-200 rounded-md"></div>
+                    <div className="h-10 w-28 bg-gray-200 rounded-md"></div>
+                    <Music className="h-6 w-6 text-indigo-600" />
                   </div>
                 </div>
               </motion.section>
@@ -95,11 +117,11 @@ const Index = () => {
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }} 
-                className="py-20 bg-white"
+                className="py-20 bg-gradient-to-b from-white to-gray-50"
               >
                 <div className="container mx-auto px-4">
                   <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">Success Stories</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Success Stories</h2>
                     <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                       Read how musicians across Canada have used our platform to secure funding and advance their careers.
                     </p>
@@ -114,21 +136,29 @@ const Index = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: item * 0.1 }}
                         viewport={{ once: true }} 
-                        className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+                        className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all"
                       >
-                        <img 
-                          src={`/lovable-uploads/31de3fac-c732-4f53-bb13-86bde610ee0d.png`} 
-                          alt={`Success story ${item}`} 
-                          className="w-full h-48 object-cover" 
-                        />
+                        <div className="relative">
+                          <img 
+                            src={`/lovable-uploads/31de3fac-c732-4f53-bb13-86bde610ee0d.png`} 
+                            alt={`Success story ${item}`} 
+                            className="w-full h-48 object-cover" 
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent h-24"></div>
+                        </div>
                         <div className="p-6">
                           <h3 className="text-xl font-bold mb-2">Sarah Johnson</h3>
-                          <p className="text-blue-600 font-medium mb-3">$25,000 FACTOR Grant</p>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-white text-xs bg-blue-600 px-2 py-1 rounded-full">$25,000 FACTOR Grant</span>
+                          </div>
                           <p className="text-gray-600 mb-4">
                             "The AI assistant helped me identify key areas to strengthen in my application. 
                             I was able to secure a FACTOR grant that funded my album production."
                           </p>
-                          <Button variant="link" className="p-0 text-blue-600">Read full story</Button>
+                          <Button variant="link" className="p-0 text-blue-600 flex items-center gap-1">
+                            Read full story
+                            <CheckCircle className="h-3 w-3" />
+                          </Button>
                         </div>
                       </motion.div>
                     ))}
@@ -142,7 +172,7 @@ const Index = () => {
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }} 
-                className="py-20 bg-blue-600 text-white"
+                className="py-20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
               >
                 <div className="container mx-auto px-4">
                   <div className="text-center mb-12">
@@ -165,7 +195,7 @@ const Index = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: index * 0.1 }}
                         viewport={{ once: true }} 
-                        className="bg-white/10 backdrop-blur-sm rounded-lg p-8 text-center"
+                        className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center hover:bg-white/20 transition-colors"
                       >
                         <p className="text-4xl font-bold mb-2">{stat.number}</p>
                         <p className="text-blue-100">{stat.label}</p>

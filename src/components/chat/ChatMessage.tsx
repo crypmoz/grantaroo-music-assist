@@ -2,6 +2,7 @@
 import { MessageType } from "@/context/ChatbotContext";
 import { cn } from "@/lib/utils";
 import { Bot, User } from "lucide-react";
+import { motion } from "framer-motion";
 
 type ChatMessageProps = {
   message: MessageType;
@@ -47,33 +48,36 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     >
       {isBot && (
         <div className="flex-shrink-0 mr-2">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <Bot className="h-4 w-4 text-primary" />
+          <div className="bg-blue-100 p-2 rounded-full">
+            <Bot className="h-4 w-4 text-blue-600" />
           </div>
         </div>
       )}
       
       <div
         className={cn(
-          "rounded-lg px-4 py-2 max-w-[85%]",
+          "rounded-xl px-4 py-3 max-w-[85%] shadow-sm",
           isBot 
-            ? "bg-secondary text-secondary-foreground" 
-            : "bg-primary text-primary-foreground"
+            ? "bg-white border border-gray-100" 
+            : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
         )}
       >
         <div 
-          className="whitespace-pre-wrap"
+          className="whitespace-pre-wrap text-sm"
           dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
         />
-        <div className="text-xs opacity-70 mt-1">
+        <div className={cn(
+          "text-xs mt-1",
+          isBot ? "text-gray-400" : "text-white/70"
+        )}>
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
       
       {!isBot && (
         <div className="flex-shrink-0 ml-2">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <User className="h-4 w-4 text-primary" />
+          <div className="bg-indigo-100 p-2 rounded-full">
+            <User className="h-4 w-4 text-indigo-600" />
           </div>
         </div>
       )}

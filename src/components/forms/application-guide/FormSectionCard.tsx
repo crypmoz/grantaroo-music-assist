@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,18 +8,8 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useChatbot } from "@/context/ChatbotContext";
 import { toast } from "sonner";
-import { SectionAdvice } from "./SectionAdvice";
+import { Section } from "./FormSections";
 import { HelpPrompt } from "./HelpPrompt";
-
-interface FormSectionCardProps {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  examples?: Template[];
-  tips?: string[];
-  advice?: string;
-}
 
 export type Template = {
   id: string;
@@ -30,6 +19,18 @@ export type Template = {
   tags: string[];
 };
 
+export interface FormSectionCardProps {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  examples?: Template[];
+  tips?: string[];
+  advice?: string;
+  hasSuccessInsights?: boolean;
+  relevantFactors?: string[];
+}
+
 export const FormSectionCard = ({
   id,
   title,
@@ -37,7 +38,9 @@ export const FormSectionCard = ({
   icon,
   examples,
   tips,
-  advice
+  advice,
+  hasSuccessInsights,
+  relevantFactors
 }: FormSectionCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
@@ -140,10 +143,29 @@ export const FormSectionCard = ({
               )}
               
               {/* Expert Advice */}
-              {advice && <SectionAdvice advice={advice} />}
+              {advice && (
+                <div className="p-3 bg-blue-50 border border-blue-100 rounded-md">
+                  <h4 className="text-sm font-medium mb-2 text-blue-700">Expert Insights</h4>
+                  <p className="text-sm text-blue-700 whitespace-pre-line">{advice}</p>
+                  
+                  {hasSuccessInsights && relevantFactors && relevantFactors.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-blue-200">
+                      <h5 className="text-xs font-medium mb-1 text-blue-700">Insights from successful applications:</h5>
+                      <ul className="space-y-1">
+                        {relevantFactors.map((factor, idx) => (
+                          <li key={idx} className="text-xs text-blue-700 flex items-start gap-1">
+                            <Check className="h-3 w-3 text-blue-500 mt-0.5" />
+                            <span>{factor}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
               
               {/* Quick Help Prompts */}
-              <HelpPrompt sectionName={title} onSelectPrompt={handleGetHelp} />
+              <HelpPrompt onSelectPrompt={handleGetHelp} />
               
               {/* Content Editor */}
               <div className="space-y-2 pt-4 border-t">

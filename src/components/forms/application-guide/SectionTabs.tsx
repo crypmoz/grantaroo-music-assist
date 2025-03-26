@@ -1,7 +1,7 @@
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { FORM_SECTIONS } from "./FormSections";
+import { formSections } from "./FormSections";
 
 type SectionTabsProps = {
   activeTab: string;
@@ -12,7 +12,7 @@ export const SectionTabs = ({ activeTab, onChange }: SectionTabsProps) => {
   return (
     <div className="bg-white p-2 rounded-lg shadow-sm border mb-4">
       <div className="grid grid-cols-5 gap-1">
-        {FORM_SECTIONS.map((section, index) => (
+        {formSections.map((section, index) => (
           <motion.button
             key={section.id}
             initial={{ opacity: 0, y: -5 }}
@@ -25,7 +25,7 @@ export const SectionTabs = ({ activeTab, onChange }: SectionTabsProps) => {
             }`}
             onClick={() => onChange(section.id)}
           >
-            <section.icon className={`h-4 w-4 ${activeTab === section.id ? "text-blue-600" : "text-gray-500"}`} />
+            {section.icon}
             <span className="hidden sm:inline text-xs mt-1 font-medium">{section.title}</span>
           </motion.button>
         ))}

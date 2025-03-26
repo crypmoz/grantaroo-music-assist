@@ -54,10 +54,14 @@ export const DocumentManager = () => {
           fileType: doc.file_type,
           filePath: doc.file_path,
           createdAt: new Date(doc.created_at).toLocaleDateString(),
-          metadata: doc.metadata || { tags: [], category: 'general' }
+          metadata: doc.metadata ? {
+            tags: doc.metadata.tags || [],
+            category: doc.metadata.category || 'general',
+            size: doc.metadata.size
+          } : { tags: [], category: 'general' }
         }));
         
-        setDocuments(formattedDocs);
+        setDocuments(formattedDocs as DocumentItem[]);
       }
     } catch (error) {
       console.error("Error fetching documents:", error);

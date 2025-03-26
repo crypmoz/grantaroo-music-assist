@@ -43,7 +43,12 @@ export const ApplicationFormGuide = ({ className }: ApplicationFormGuideProps) =
         {formSections.map((section) => (
           <TabsContent key={section.id} value={section.id} className="mt-0">
             <FormSectionCard
-              section={section}
+              id={section.id}
+              title={section.title}
+              description={section.description}
+              icon={section.icon}
+              examples={section.examples}
+              tips={section.tips}
               advice={getSectionAdvice(section.id, successfulAppData)}
               hasSuccessInsights={
                 successfulAppData.appliedFactors.length > 0 && 
@@ -55,7 +60,7 @@ export const ApplicationFormGuide = ({ className }: ApplicationFormGuideProps) =
         ))}
       </Tabs>
       
-      <HelpPrompt />
+      <HelpPrompt onSelectPrompt={(prompt) => successfulAppData.addMessage(prompt, "user")} />
     </div>
   );
 };

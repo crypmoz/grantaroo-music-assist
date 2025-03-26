@@ -4,11 +4,24 @@ import { Button } from "@/components/ui/button";
 import { MessageSquarePlus, HelpCircle } from "lucide-react";
 import { useChatbot } from "@/context/ChatbotContext";
 
-export const HelpPrompt = () => {
+interface HelpPromptProps {
+  sectionName?: string;
+  onSelectPrompt: (prompt: string) => void;
+}
+
+export const HelpPrompt = ({ sectionName, onSelectPrompt }: HelpPromptProps) => {
   const { addMessage } = useChatbot();
   
   const handleHelpClick = () => {
-    addMessage("I need help with my grant application. Can you provide guidance?", "user");
+    const prompt = sectionName 
+      ? `I need help with the ${sectionName} section of my grant application. Can you provide guidance?`
+      : "I need help with my grant application. Can you provide guidance?";
+    
+    if (onSelectPrompt) {
+      onSelectPrompt(prompt);
+    } else {
+      addMessage(prompt, "user");
+    }
   };
   
   return (

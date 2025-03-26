@@ -6,7 +6,7 @@ import { FileText } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FormSectionCard } from "./application-guide/FormSectionCard";
-import { FORM_SECTIONS } from "./application-guide/FormSections";
+import { formSections } from "./application-guide/FormSections";
 import { getSectionAdvice, filterRelevantFactors } from "./application-guide/SectionAdvice";
 import { HelpPrompt } from "./application-guide/HelpPrompt";
 import { SectionTabs } from "./application-guide/SectionTabs";
@@ -40,7 +40,7 @@ export const ApplicationFormGuide = ({ className }: ApplicationFormGuideProps) =
       <Tabs defaultValue="project-summary" value={activeTab} onValueChange={setActiveTab}>
         <SectionTabs activeTab={activeTab} onChange={setActiveTab} />
         
-        {FORM_SECTIONS.map((section) => (
+        {formSections.map((section) => (
           <TabsContent key={section.id} value={section.id} className="mt-0">
             <FormSectionCard
               section={section}

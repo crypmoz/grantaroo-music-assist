@@ -1,12 +1,18 @@
 
-// Types for ChatbotContext
+import { ReactNode } from "react";
+
 export type MessageType = {
   id: string;
   content: string;
   role: "user" | "assistant";
-  timestamp: Date;
   sender?: "user" | "bot"; // For backward compatibility
-  attachments?: UploadedFile[]; // Added for file attachments
+  timestamp: Date;
+  attachments?: UploadedFile[];
+  sources?: {
+    id: string;
+    name: string;
+    snippet: string;
+  }[];
 };
 
 export type UploadedFile = {
@@ -17,28 +23,29 @@ export type UploadedFile = {
   data: File;
 };
 
+export type GrantType = {
+  id: string;
+  name: string;
+  provider: string;
+  deadline: string;
+  maxAmount: string;
+  description?: string;
+  eligibility: string[];
+  url: string;
+};
+
 export type GrantProfileType = {
   careerStage: string;
   genre: string;
-  streamingNumbers: string;
-  previousGrants: string;
   projectType: string;
   projectBudget: string;
+  streamingNumbers?: string;
+  previousGrants?: string;
 };
 
 export type SuccessfulAppDataType = {
   appliedFactors: string[];
   isShowingExamples: boolean;
-};
-
-export type GrantType = {
-  id: string;
-  name: string;
-  provider: string;
-  maxAmount: string;
-  deadline: string;
-  url: string;
-  eligibility: string[];
 };
 
 export type ChatbotContextType = {
@@ -53,15 +60,15 @@ export type ChatbotContextType = {
   isLoading: boolean;
   uploadedFiles: UploadedFile[];
   toggleEnhancedAI: () => void;
-  addMessage: (content: string, role: "user" | "assistant", attachments?: UploadedFile[]) => Promise<void>;
+  addMessage: (content: string, role: "user" | "assistant", attachments?: UploadedFile[]) => void;
   setGrantProfile: (profile: GrantProfileType) => void;
-  setUserProfile: (profile: GrantProfileType) => void;
+  setUserProfile: (profile: GrantProfileType | null) => void;
   setCurrentStep: (step: "welcome" | "profile" | "suggestions" | "application-form") => void;
   clearMessages: () => void;
   setSuggestedGrants: (grants: GrantType[]) => void;
   setSuccessfulAppData: (data: SuccessfulAppDataType) => void;
-  setIsLoading: (loading: boolean) => void;
-  getEnhancedResponse: (message: string) => Promise<string>;
+  setIsLoading: (isLoading: boolean) => void;
+  getEnhancedResponse: (userMessage: string) => Promise<string>;
   addUploadedFile: (file: UploadedFile) => void;
   removeUploadedFile: (fileId: string) => void;
 };

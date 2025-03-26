@@ -4,7 +4,7 @@ import { GrantProfileType } from "./types";
 import { getAIGrantToolResponse } from "@/services/aiGrantToolService";
 
 // Enhanced AI response function
-export const getEnhancedResponse = async (userMessage: string, userProfile: GrantProfileType | null): Promise<string> => {
+export const getEnhancedResponse = async (userMessage: string, userProfile: GrantProfileType | null): Promise<string | {text: string, sources: any[]}> => {
   try {
     // First try with Supabase edge function
     console.log("Attempting to use Supabase edge function for AI response");
@@ -22,6 +22,14 @@ export const getEnhancedResponse = async (userMessage: string, userProfile: Gran
     
     if (data?.response) {
       console.log("Successfully got response from Supabase function");
+      // If the function returns both response text and document sources
+      if (data.sources && data.sources.length > 0) {
+        return {
+          text: data.response,
+          sources: data.sources
+        };
+      }
+      // If just returning the text response
       return data.response;
     } else {
       throw new Error("No response returned from Supabase function");

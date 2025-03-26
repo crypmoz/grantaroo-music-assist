@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { DocumentSourceIndicator } from "./DocumentSourceIndicator";
 
 type ChatMessageProps = {
   message: MessageType;
@@ -82,6 +83,9 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     ? message.content.replace(/Grant Name: (.*?)\nProvider: (.*?)\nDeadline: (.*?)\nAmount: (.*?)(\n|$)/, '') 
     : message.content;
   
+  // Check if message has document sources
+  const hasDocumentSources = isBot && message.sources && message.sources.length > 0;
+  
   return (
     <div
       className={cn(
@@ -149,6 +153,13 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
               </CardFooter>
             </Card>
           </div>
+        )}
+        
+        {/* Display document sources if available */}
+        {hasDocumentSources && (
+          <DocumentSourceIndicator 
+            sources={message.sources || []}
+          />
         )}
         
         {/* Display file attachments if any */}

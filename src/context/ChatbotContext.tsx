@@ -56,7 +56,14 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
   const getEnhancedResponseWithProfile = async (userMessage: string): Promise<string> => {
     try {
       const response = await getEnhancedResponse(userMessage, userProfile || grantProfile);
-      return response;
+      
+      // If the response includes document sources
+      if (typeof response === 'object' && response.text && response.sources) {
+        return response.text;
+      }
+      
+      // If it's just a string response
+      return response as string;
     } catch (error) {
       console.error("Error in enhanced response:", error);
       // Fallback to basic response if enhanced fails
@@ -87,10 +94,19 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
       
       try {
         let response;
+        let sources;
         
         if (useEnhancedAI && isAuthenticated && isPaidUser) {
           // Use the Supabase edge function for enhanced AI
-          response = await getEnhancedResponseWithProfile(content);
+          const enhancedResponse = await getEnhancedResponse(content, userProfile || grantProfile);
+          
+          // Check if the response includes document sources
+          if (typeof enhancedResponse === 'object' && enhancedResponse.text) {
+            response = enhancedResponse.text;
+            sources = enhancedResponse.sources;
+          } else {
+            response = enhancedResponse as string;
+          }
         } else {
           // Use the basic AI service
           response = await getBasicAIResponse(content);
@@ -102,6 +118,7 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
           content: response,
           role: "assistant",
           timestamp: new Date(),
+          sources: sources
         };
         
         setMessages((prev) => [...prev, assistantMessage]);

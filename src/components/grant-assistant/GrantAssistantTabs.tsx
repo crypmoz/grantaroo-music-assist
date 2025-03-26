@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCircle, FilePenLine, FileSearch } from "lucide-react";
-import { ChatTab } from "../chat/ChatTab";
+import { ChatTab } from "./ChatTab";
 import { ApplicationGuideTab } from "./ApplicationGuideTab";
 import { GrantSuggestionsTab } from "./GrantSuggestionsTab";
 import { useChatbot } from "@/context/ChatbotContext";

@@ -4,10 +4,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const ApplicationGuideTab = () => {
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 pb-16">
-        <ApplicationFormGuide />
-      </div>
-    </ScrollArea>
+    <div className="h-full flex flex-col overflow-hidden">
+      <ScrollArea className="flex-1">
+        <div className="p-4 pb-16">
+          <ApplicationFormGuide />
+        </div>
+      </ScrollArea>
+    </div>
   );
 };

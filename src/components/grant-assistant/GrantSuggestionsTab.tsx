@@ -8,14 +8,16 @@ export const GrantSuggestionsTab = () => {
   const { currentStep } = useChatbot();
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 pb-16">
-        {currentStep === "welcome" ? (
-          <GrantProfileForm />
-        ) : (
-          <GrantSuggestions />
-        )}
-      </div>
-    </ScrollArea>
+    <div className="h-full flex flex-col overflow-hidden">
+      <ScrollArea className="flex-1">
+        <div className="p-4 pb-16">
+          {currentStep === "welcome" ? (
+            <GrantProfileForm />
+          ) : (
+            <GrantSuggestions />
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };

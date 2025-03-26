@@ -22,13 +22,14 @@ export const ChatTab = () => {
         behavior: "smooth"
       });
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const quickPrompts = ["How can I improve my application?", "What makes a good budget section?", "Tips for standing out from other applicants?", "Common mistakes to avoid in applications?"];
 
   return (
     <div className="flex flex-col h-full">
-      <ScrollArea className="flex-grow p-4 pb-0 overflow-y-auto">
+      {/* Use a div with overflow-y-auto instead of ScrollArea component to fix scrolling issues */}
+      <div className="flex-grow p-4 pb-0 overflow-y-auto">
         <div className="space-y-4 pb-4">
           {messages.map((message, index) => (
             <motion.div 
@@ -129,9 +130,9 @@ export const ChatTab = () => {
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+      </div>
       
-      <div className="mt-auto p-4 border-t bg-white/50 backdrop-blur-sm mx-[85px]">
+      <div className="mt-auto p-4 border-t bg-white/50 backdrop-blur-sm">
         <ChatInput />
       </div>
     </div>

@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { X, Maximize, Minimize, MessageCircle, Loader2, Bot, User, ArrowUp, PlusCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AuthModal } from "./auth/AuthModal";
-import { Link } from "react-router-dom";
-import { PaywallScreen } from "./PaywallScreen";
 import { Textarea } from "@/components/ui/textarea";
 import { v4 as uuidv4 } from "uuid";
 import { motion } from "framer-motion";
@@ -16,6 +14,7 @@ import { careerStages, musicGenres, projectTypes } from "@/data/grantsData";
 import { getBasicAIResponse } from "@/context/chatbot/helpers";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type FreeChatMessage = {
   id: string;
@@ -48,6 +47,7 @@ export const ChatBot = () => {
     projectBudget: "",
   });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   
   const { isAuthenticated, isPaidUser } = useAuth();
 
@@ -56,7 +56,7 @@ export const ChatBot = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   // Add initial welcome message when chat opens
   useEffect(() => {
@@ -330,7 +330,7 @@ export const ChatBot = () => {
     return (
       <Button
         onClick={toggleChat}
-        className="fixed bottom-4 right-4 rounded-full w-14 h-14 shadow-lg"
+        className="fixed bottom-4 right-4 rounded-full w-14 h-14 shadow-lg z-50"
       >
         <MessageCircle className="h-6 w-6" />
       </Button>
@@ -340,11 +340,14 @@ export const ChatBot = () => {
   return (
     <>
       <Card
-        className={`fixed bottom-4 right-4 shadow-xl transition-all duration-300 ${
+        className={cn(
+          "fixed shadow-xl transition-all duration-300 z-50",
           isExpanded 
             ? "w-full h-[90vh] bottom-0 right-0 rounded-none" 
-            : "w-[380px] max-w-[90vw] h-[500px] max-h-[90vh]"
-        }`}
+            : isMobile
+              ? "w-full h-[80vh] bottom-0 right-0 left-0 rounded-t-lg rounded-b-none"
+              : "w-[380px] max-w-[90vw] h-[500px] max-h-[90vh] bottom-4 right-4"
+        )}
       >
         <CardHeader className="p-4 pb-2 border-b">
           <div className="flex justify-between items-center">
@@ -545,7 +548,7 @@ export const ChatBot = () => {
               )}
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
               <div className="max-w-sm">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}

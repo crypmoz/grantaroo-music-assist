@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { FileUpload } from "./FileUpload";
 import { Progress } from "@/components/ui/progress";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const ChatInput = () => {
   const [input, setInput] = useState("");
@@ -21,6 +22,7 @@ export const ChatInput = () => {
     toggleEnhancedAI,
     uploadedFiles
   } = useChatbot();
+  const isMobile = useIsMobile();
 
   const handleSendMessage = async () => {
     if ((!input.trim() && uploadedFiles.length === 0) || isLoading || isTyping) return;
@@ -77,28 +79,30 @@ export const ChatInput = () => {
       )}
       
       <div className="flex flex-col gap-1">
-        <div className="flex space-x-2">
-          {suggestionPrompts.map((prompt, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.2, delay: i * 0.1 }}
-            >
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-xs bg-muted/50"
-                onClick={() => {
-                  setInput(prompt);
-                }}
+        {!isMobile && (
+          <div className="flex space-x-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            {suggestionPrompts.map((prompt, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2, delay: i * 0.1 }}
               >
-                <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
-                {prompt}
-              </Button>
-            </motion.div>
-          ))}
-        </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs bg-muted/50 whitespace-nowrap"
+                  onClick={() => {
+                    setInput(prompt);
+                  }}
+                >
+                  <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
+                  {prompt}
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        )}
         
         {showFileUpload && (
           <motion.div

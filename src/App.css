@@ -1,8 +1,15 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
 }
 
 .logo {
@@ -39,4 +46,42 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Added responsive fixes */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+/* Fix z-index layering for dropdowns */
+.radix-dropdown-menu-content,
+.select-content {
+  z-index: 100 !important;
+}
+
+/* Ensure proper stacking in mobile views */
+@media (max-width: 768px) {
+  .z-50 {
+    z-index: 50 !important;
+  }
+  
+  /* Ensure dialogs appear above everything */
+  .dialog-content,
+  .modal-content {
+    z-index: 60 !important;
+  }
 }

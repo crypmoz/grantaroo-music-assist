@@ -1,12 +1,13 @@
 
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { useChatbot } from "@/context/ChatbotContext";
 import { Button } from "@/components/ui/button";
-import { Bot, HelpCircle, MessageSquarePlus, LoaderCircle } from "lucide-react";
+import { Bot, MessageSquarePlus, LoaderCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 export const ChatTab = () => {
   const {
@@ -15,6 +16,7 @@ export const ChatTab = () => {
     addMessage
   } = useChatbot();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -27,9 +29,12 @@ export const ChatTab = () => {
   const quickPrompts = ["How can I improve my application?", "What makes a good budget section?", "Tips for standing out from other applicants?", "Common mistakes to avoid in applications?"];
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Use a div with overflow-y-auto instead of ScrollArea component to fix scrolling issues */}
-      <div className="flex-grow p-4 pb-0 overflow-y-auto">
+    <div className="flex flex-col h-full relative">
+      {/* Use div with proper overflow handling for chat messages */}
+      <div className={cn(
+        "flex-grow p-4 pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent",
+        isMobile ? "h-[calc(100vh-270px)]" : "h-auto"
+      )}>
         <div className="space-y-4 pb-4">
           {messages.map((message, index) => (
             <motion.div 
@@ -98,7 +103,10 @@ export const ChatTab = () => {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4 w-full max-w-md">
+              <div className={cn(
+                "grid gap-2 mt-4 w-full max-w-md",
+                isMobile ? "grid-cols-1" : "grid-cols-2"
+              )}>
                 {quickPrompts.map((prompt, index) => (
                   <motion.div 
                     key={index} 

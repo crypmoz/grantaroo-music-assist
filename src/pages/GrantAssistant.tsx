@@ -1,8 +1,13 @@
 
 import { GrantAssistantLayout } from "@/components/grant-assistant/GrantAssistantLayout";
+import { ChatbotProvider } from "@/context/ChatbotContext";
 
 const GrantAssistant = () => {
-  return <GrantAssistantLayout />;
+  return (
+    <ChatbotProvider>
+      <GrantAssistantLayout />
+    </ChatbotProvider>
+  );
 };
 
 export default GrantAssistant;

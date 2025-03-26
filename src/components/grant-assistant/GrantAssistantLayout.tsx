@@ -1,20 +1,18 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { BarChart, Lock, Sparkles, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { PaywallScreen } from "@/components/PaywallScreen";
 import { GrantAssistantTabs } from "./GrantAssistantTabs";
-import { GrantAssistantAIPanel } from "./GrantAssistantAIPanel";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export const GrantAssistantLayout = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showStats, setShowStats] = useState(false);
   const { isAuthenticated, isPaidUser } = useAuth();
   
   // Handle login button click
@@ -53,17 +51,6 @@ export const GrantAssistantLayout = () => {
                 Get personalized guidance for your music grant applications
               </p>
             </div>
-            
-            {isPaidUser && (
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2"
-                onClick={() => setShowStats(!showStats)}
-              >
-                <BarChart className="h-4 w-4" />
-                {showStats ? "Hide Statistics" : "View Success Statistics"}
-              </Button>
-            )}
           </div>
 
           {!isAuthenticated ? (
@@ -71,14 +58,8 @@ export const GrantAssistantLayout = () => {
           ) : !isPaidUser ? (
             <PaywallScreen />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <GrantAssistantTabs />
-              </div>
-              
-              <div className="lg:col-span-1">
-                <GrantAssistantAIPanel showStats={showStats} />
-              </div>
+            <div className="w-full">
+              <GrantAssistantTabs />
             </div>
           )}
         </motion.div>

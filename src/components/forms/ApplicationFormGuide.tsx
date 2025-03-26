@@ -17,7 +17,7 @@ interface ApplicationFormGuideProps {
 }
 
 export const ApplicationFormGuide = ({ className }: ApplicationFormGuideProps) => {
-  const { successfulAppData } = useChatbot();
+  const { successfulAppData, addMessage } = useChatbot();
   const [activeTab, setActiveTab] = useState("project-summary");
   
   return (
@@ -60,7 +60,7 @@ export const ApplicationFormGuide = ({ className }: ApplicationFormGuideProps) =
         ))}
       </Tabs>
       
-      <HelpPrompt onSelectPrompt={(prompt) => successfulAppData.addMessage(prompt, "user")} />
+      <HelpPrompt onSelectPrompt={(prompt) => addMessage(prompt, "user")} />
     </div>
   );
 };

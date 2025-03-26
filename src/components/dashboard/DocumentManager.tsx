@@ -48,20 +48,20 @@ export const DocumentManager = () => {
       if (error) throw error;
       
       if (data) {
-        const formattedDocs = data.map(doc => ({
+        const formattedDocs: DocumentItem[] = data.map(doc => ({
           id: doc.id,
           fileName: doc.file_name,
           fileType: doc.file_type,
           filePath: doc.file_path,
           createdAt: new Date(doc.created_at).toLocaleDateString(),
-          metadata: doc.metadata ? {
-            tags: doc.metadata.tags || [],
-            category: doc.metadata.category || 'general',
-            size: doc.metadata.size
-          } : { tags: [], category: 'general' }
+          metadata: {
+            tags: Array.isArray(doc.metadata?.tags) ? doc.metadata.tags : [],
+            category: typeof doc.metadata?.category === 'string' ? doc.metadata.category : 'general',
+            size: typeof doc.metadata?.size === 'number' ? doc.metadata.size : undefined
+          }
         }));
         
-        setDocuments(formattedDocs as DocumentItem[]);
+        setDocuments(formattedDocs);
       }
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -154,7 +154,10 @@ export const DocumentManager = () => {
       const { error } = await supabase
         .from('grant_documents')
         .update({
-          metadata: { ...document.metadata, tags: updatedTags }
+          metadata: { 
+            ...document.metadata, 
+            tags: updatedTags 
+          }
         })
         .eq('id', documentId);
         

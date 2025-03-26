@@ -48,18 +48,23 @@ export const DocumentManager = () => {
       if (error) throw error;
       
       if (data) {
-        const formattedDocs: DocumentItem[] = data.map(doc => ({
-          id: doc.id,
-          fileName: doc.file_name,
-          fileType: doc.file_type,
-          filePath: doc.file_path,
-          createdAt: new Date(doc.created_at).toLocaleDateString(),
-          metadata: {
-            tags: Array.isArray(doc.metadata?.tags) ? doc.metadata.tags : [],
-            category: typeof doc.metadata?.category === 'string' ? doc.metadata.category : 'general',
-            size: typeof doc.metadata?.size === 'number' ? doc.metadata.size : undefined
-          }
-        }));
+        const formattedDocs: DocumentItem[] = data.map(doc => {
+          // Safely extract metadata properties with proper type handling
+          const metadata = doc.metadata as Record<string, any> || {};
+          
+          return {
+            id: doc.id,
+            fileName: doc.file_name,
+            fileType: doc.file_type,
+            filePath: doc.file_path,
+            createdAt: new Date(doc.created_at).toLocaleDateString(),
+            metadata: {
+              tags: Array.isArray(metadata.tags) ? metadata.tags : [],
+              category: typeof metadata.category === 'string' ? metadata.category : 'general',
+              size: typeof metadata.size === 'number' ? metadata.size : undefined
+            }
+          };
+        });
         
         setDocuments(formattedDocs);
       }

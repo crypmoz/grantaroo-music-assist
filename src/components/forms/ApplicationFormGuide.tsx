@@ -10,13 +10,18 @@ import { FORM_SECTIONS } from "./application-guide/FormSections";
 import { getSectionAdvice, filterRelevantFactors } from "./application-guide/SectionAdvice";
 import { HelpPrompt } from "./application-guide/HelpPrompt";
 import { SectionTabs } from "./application-guide/SectionTabs";
+import { cn } from "@/lib/utils";
 
-export const ApplicationFormGuide = () => {
+interface ApplicationFormGuideProps {
+  className?: string;
+}
+
+export const ApplicationFormGuide = ({ className }: ApplicationFormGuideProps) => {
   const { successfulAppData } = useChatbot();
   const [activeTab, setActiveTab] = useState("project-summary");
   
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", className)}>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

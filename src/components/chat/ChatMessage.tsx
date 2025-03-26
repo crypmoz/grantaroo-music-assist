@@ -1,9 +1,11 @@
 
-import { MessageType, UploadedFile } from "@/context/ChatbotContext";
+import { MessageType, UploadedFile, GrantType } from "@/context/ChatbotContext";
 import { cn } from "@/lib/utils";
-import { Bot, User, FileText, Download } from "lucide-react";
+import { Bot, User, FileText, Download, Calendar, Link as LinkIcon, DollarSign, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ChatMessageProps = {
   message: MessageType;
@@ -40,6 +42,26 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     return formatted;
   };
 
+  // Extract grant information if present in message content
+  const extractGrantInfo = (content: string): GrantType | null => {
+    // Simple regex pattern to detect grant information
+    // Actual implementation would need more robust parsing
+    const grantMatch = content.match(/Grant Name: (.*?)\nProvider: (.*?)\nDeadline: (.*?)\nAmount: (.*?)(\n|$)/);
+    
+    if (grantMatch) {
+      return {
+        id: "extracted-grant", // Placeholder ID
+        name: grantMatch[1],
+        provider: grantMatch[2],
+        deadline: grantMatch[3],
+        maxAmount: grantMatch[4],
+        eligibility: [],
+        url: "#"
+      };
+    }
+    return null;
+  };
+
   // Function to handle file download
   const handleFileDownload = (file: UploadedFile) => {
     const url = URL.createObjectURL(file.data);
@@ -51,11 +73,19 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  // Extract grant info if any
+  const grantInfo = isBot ? extractGrantInfo(message.content) : null;
+  
+  // Filter out grant info from message content if it was detected
+  const messageContent = grantInfo 
+    ? message.content.replace(/Grant Name: (.*?)\nProvider: (.*?)\nDeadline: (.*?)\nAmount: (.*?)(\n|$)/, '') 
+    : message.content;
   
   return (
     <div
       className={cn(
-        "flex w-full my-2",
+        "flex w-full my-4",
         isBot ? "justify-start" : "justify-end"
       )}
     >
@@ -69,7 +99,7 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
       
       <div
         className={cn(
-          "rounded-xl px-4 py-3 max-w-[85%] shadow-sm",
+          "rounded-2xl px-4 py-3 max-w-[85%] shadow-sm",
           isBot 
             ? "bg-white border border-gray-100" 
             : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
@@ -77,8 +107,49 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
       >
         <div 
           className="whitespace-pre-wrap text-sm"
-          dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
+          dangerouslySetInnerHTML={{ __html: formatMessage(messageContent) }}
         />
+        
+        {/* Display grant information in card format if detected */}
+        {grantInfo && (
+          <div className="mt-4 mb-2">
+            <Card className="border-l-4 border-l-primary bg-blue-50/50">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-base">{grantInfo.name}</CardTitle>
+                    <p className="text-xs text-muted-foreground">{grantInfo.provider}</p>
+                  </div>
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <Check className="h-3 w-3 mr-1" /> Match
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3 text-blue-500" />
+                    <p>{grantInfo.deadline}</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <DollarSign className="h-3 w-3 text-green-500" />
+                    <p>{grantInfo.maxAmount}</p>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-xs h-7 w-full"
+                >
+                  <LinkIcon className="h-3 w-3 mr-1" />
+                  View Details
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        )}
         
         {/* Display file attachments if any */}
         {message.attachments && message.attachments.length > 0 && (

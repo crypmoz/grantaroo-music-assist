@@ -2,7 +2,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useChatbot } from "@/context/ChatbotContext";
-import { FileText, Info, PieChart, Tags, Clock } from "lucide-react";
+import { FileText, Info, PieChart, Tags, Clock, File } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,16 @@ export const ApplicationGuideTab = () => {
     { id: "keywords", label: "Key Terms", icon: <Tags className="h-4 w-4" /> },
     { id: "timeline", label: "Timeline", icon: <Clock className="h-4 w-4" /> },
   ];
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+  };
   
   return (
     <div className="h-full flex flex-col">
-      <ScrollArea className="flex-1 px-6 py-6">
+      <ScrollArea className="flex-1 px-4 py-6">
         <div className="space-y-8">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -44,7 +50,7 @@ export const ApplicationGuideTab = () => {
               </div>
             </div>
 
-            <div className="flex overflow-x-auto pb-2 mb-4 gap-2">
+            <div className="flex overflow-x-auto pb-2 mb-4 gap-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
               {sections.map((section) => (
                 <Button
                   key={section.id}
@@ -52,7 +58,7 @@ export const ApplicationGuideTab = () => {
                   size="sm"
                   onClick={() => setCurrentSection(section.id)}
                   className={cn(
-                    "flex items-center gap-2",
+                    "flex items-center gap-2 flex-shrink-0",
                     currentSection === section.id ? "bg-blue-600" : "bg-white"
                   )}
                 >
@@ -75,6 +81,21 @@ export const ApplicationGuideTab = () => {
                 <CardContent>
                   {currentSection === "overview" && (
                     <div className="space-y-4">
+                      <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                        <h4 className="font-medium text-blue-700 mb-2">Uploaded Documents</h4>
+                        <div className="space-y-2">
+                          {uploadedFiles.map((file) => (
+                            <div key={file.id} className="flex items-center gap-2 bg-white p-2 rounded-md">
+                              <File className="h-4 w-4 text-blue-600" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{file.name}</p>
+                                <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
                       <p className="text-gray-700">
                         Based on your uploaded documents, we've analyzed key aspects of your grant application.
                         {profile && ` As a ${profile.careerStage} musician in the ${profile.genre} genre, here are some key points to consider.`}

@@ -15,12 +15,12 @@ export const ChatTab = () => {
     isTyping,
     addMessage
   } = useChatbot();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
         behavior: "smooth"
       });
     }
@@ -30,12 +30,11 @@ export const ChatTab = () => {
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Use div with proper overflow handling for chat messages */}
       <div className={cn(
-        "flex-grow p-4 pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent",
+        "flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent",
         isMobile ? "h-[calc(100vh-270px)]" : "h-auto"
       )}>
-        <div className="space-y-4 pb-4">
+        <div className="p-4 pb-0 space-y-2">
           {messages.map((message, index) => (
             <motion.div 
               key={message.id} 
@@ -75,7 +74,7 @@ export const ChatTab = () => {
             </motion.div>
           )}
           
-          <div ref={scrollRef} />
+          <div ref={messagesEndRef} />
           
           {messages.length === 0 && (
             <motion.div 

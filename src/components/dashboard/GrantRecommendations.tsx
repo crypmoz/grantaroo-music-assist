@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
@@ -19,6 +20,8 @@ export const GrantRecommendations = () => {
   const [userProfile, setUserProfile] = useState(true);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
   const [recommendedGrants, setRecommendedGrants] = useState<GrantType[]>([]);
+  // Store match scores separately since they're not part of GrantType
+  const [matchScores, setMatchScores] = useState<{[id: string]: number}>({});
 
   useEffect(() => {
     if (user) {
@@ -35,11 +38,13 @@ export const GrantRecommendations = () => {
       availableGrants[3]
     ];
     
-    const enhancedRecommendations = recommendations.map((grant, index) => ({
-      ...grant,
-      matchScore: index === 0 ? 92 : index === 1 ? 86 : 78
-    }));
+    // Create a separate matchScores object instead of trying to add the property to GrantType
+    const scores: {[id: string]: number} = {};
+    recommendations.forEach((grant, index) => {
+      scores[grant.id] = index === 0 ? 92 : index === 1 ? 86 : 78;
+    });
     
+    setMatchScores(scores);
     setSuggestedGrants(recommendations);
     setRecommendedGrants(recommendations);
     
@@ -122,7 +127,7 @@ export const GrantRecommendations = () => {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg font-semibold">{grant.name}</CardTitle>
                     <Badge className="bg-green-500" variant="secondary">
-                      {grant.matchScore}% Match
+                      {matchScores[grant.id]}% Match
                     </Badge>
                   </div>
                   <CardDescription>{grant.provider}</CardDescription>
@@ -135,7 +140,7 @@ export const GrantRecommendations = () => {
                     </div>
                     <div className="flex items-center text-muted-foreground">
                       <DollarSign className="w-4 h-4 mr-2" />
-                      <span>Amount: {grant.amount}</span>
+                      <span>Amount: {grant.maxAmount}</span>
                     </div>
                     <p className="mt-2">{grant.description}</p>
                   </div>
@@ -143,7 +148,7 @@ export const GrantRecommendations = () => {
                 <CardFooter className="flex gap-2">
                   <Button 
                     variant="outline"
-                    onClick={() => window.open(`https://example.com/grants/${grant.id}`, "_blank")}
+                    onClick={() => window.open(grant.url, "_blank")}
                     className="flex-1"
                   >
                     View Details

@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { UploadedFile } from "@/context/chatbot/types";
 import { DocumentItem, DocumentItemType } from "@/components/dashboard/DocumentItem";
+import { Badge } from "@/components/ui/badge";
 
 export const DocumentAnalysisTab = () => {
   const [activeTab, setActiveTab] = useState("upload");
@@ -129,7 +130,23 @@ export const DocumentAnalysisTab = () => {
         
       if (error) throw error;
       
-      setDocuments(data as DocumentItemType[]);
+      // Map the snake_case properties from Supabase to the camelCase properties expected by DocumentItemType
+      const formattedDocs: DocumentItemType[] = data.map(doc => {
+        return {
+          id: doc.id,
+          fileName: doc.file_name,
+          fileType: doc.file_type,
+          filePath: doc.file_path,
+          createdAt: new Date(doc.created_at).toLocaleDateString(),
+          metadata: {
+            tags: doc.metadata?.tags || [],
+            category: doc.metadata?.category || 'general',
+            size: doc.metadata?.size
+          }
+        };
+      });
+      
+      setDocuments(formattedDocs);
     } catch (error) {
       console.error("Error fetching documents:", error);
       toast.error("Failed to load documents");
@@ -141,7 +158,7 @@ export const DocumentAnalysisTab = () => {
   const handleAnalyzeDocument = async (document: DocumentItemType) => {
     try {
       // Add to chat
-      await addMessage(`Please analyze the document "${document.file_name}" I've uploaded. What are the key requirements and what makes a successful application based on this document?`, "user");
+      await addMessage(`Please analyze the document "${document.fileName}" I've uploaded. What are the key requirements and what makes a successful application based on this document?`, "user");
       
       toast.success("Document sent for analysis. Check the chat tab for insights.");
       
@@ -258,9 +275,9 @@ export const DocumentAnalysisTab = () => {
                         {documents.map((doc) => (
                           <div key={doc.id} className="border rounded-lg p-3 hover:bg-accent/50 transition-colors">
                             <div className="flex justify-between mb-2">
-                              <h4 className="font-medium">{doc.file_name}</h4>
+                              <h4 className="font-medium">{doc.fileName}</h4>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(doc.created_at).toLocaleDateString()}
+                                {doc.createdAt}
                               </span>
                             </div>
                             
@@ -403,5 +420,3 @@ export const DocumentAnalysisTab = () => {
     </div>
   );
 };
-
-import { Badge } from "@/components/ui/badge";

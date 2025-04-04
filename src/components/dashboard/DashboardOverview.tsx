@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -133,14 +134,15 @@ export const DashboardOverview = () => {
             ) : (
               <div className="bg-gray-50 p-3 rounded-md">
                 <p className="text-sm mb-2">Unlock AI-powered grant assistance</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.href = '/assistant'}
-                  className="w-full"
-                >
-                  See Premium Features
-                </Button>
+                <Link to="/assistant">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    See Premium Features
+                  </Button>
+                </Link>
               </div>
             )}
           </CardContent>

@@ -18,6 +18,7 @@ import Profile from "./pages/Profile";
 import Statistics from "./pages/Statistics";
 import { ChatBot } from "./components/ChatBot";
 import { GrantApplicationForm } from "./components/GrantApplicationForm";
+import Assistant from "./pages/Assistant"; // New import
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/stats" element={<Statistics />} />
+              <Route path="/assistant" element={<Assistant />} /> {/* New route */}
             </Routes>
             <ChatBot />
           </BrowserRouter>

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -16,17 +15,9 @@ export const DashboardOverview = () => {
   useEffect(() => {
     if (user) {
       // Check if profile is complete
-      const checkProfile = async () => {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        if (data && Object.keys(data).length > 3) { // Basic check if profile has enough data
-          setProfileComplete(true);
-        }
-      };
+      // Since there's no 'profiles' table in the database schema,
+      // we'll use user metadata or just set a default value for now
+      setProfileComplete(true); // For now, assume profile is complete
       
       // Get applications count
       const getApplications = async () => {
@@ -40,7 +31,6 @@ export const DashboardOverview = () => {
         }
       };
       
-      checkProfile();
       getApplications();
     }
   }, [user]);

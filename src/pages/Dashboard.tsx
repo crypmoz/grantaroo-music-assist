@@ -8,25 +8,32 @@ import { DashboardProfile } from "@/components/dashboard/DashboardProfile";
 import { GrantApplicationAssistant } from "@/components/dashboard/GrantApplicationAssistant";
 import { DashboardApplications } from "@/components/dashboard/DashboardApplications";
 import { TabsContent } from "@/components/ui/tabs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Dashboard = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("overview");
   
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/");
     }
-  }, [isAuthenticated, navigate]);
+    
+    // Check if a specific tab was requested in the location state
+    if (location.state && location.state.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [isAuthenticated, navigate, location.state]);
   
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 py-6 pb-16">
-        <DashboardLayout>
+        <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
           <TabsContent value="overview" className="space-y-4 animate-in">
             <DashboardOverview />
           </TabsContent>

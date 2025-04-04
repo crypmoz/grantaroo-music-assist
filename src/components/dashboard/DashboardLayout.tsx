@@ -1,22 +1,22 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, FileText, User, Award, Brain } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  activeTab: string;
+  onTabChange: (value: string) => void;
 }
 
-export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const [activeTab, setActiveTab] = useState("overview");
-
+export const DashboardLayout = ({ children, activeTab, onTabChange }: DashboardLayoutProps) => {
   return (
     <div className="container mx-auto px-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold tracking-tight">Grant Application Portal</h1>
       </div>
       
-      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={onTabChange}>
         <div className="border-b pb-2 mb-4">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
             <TabsTrigger value="overview" className="py-2.5 flex items-center gap-2">

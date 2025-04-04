@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
@@ -10,87 +9,44 @@ import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useChatbot } from "@/context/ChatbotContext";
+import { availableGrants } from "@/data/grantsData";
+import { GrantType } from "@/context/chatbot/types";
 
 export const GrantRecommendations = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { setCurrentStep, setSuggestedGrants } = useChatbot();
-  const [userProfile, setUserProfile] = useState(null);
+  const [userProfile, setUserProfile] = useState(true);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
-  const [recommendedGrants, setRecommendedGrants] = useState([]);
+  const [recommendedGrants, setRecommendedGrants] = useState<GrantType[]>([]);
 
   useEffect(() => {
     if (user) {
-      // Get user profile
-      const fetchProfile = async () => {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        if (data) {
-          setUserProfile(data);
-        }
-      };
-      
-      fetchProfile();
+      getRecommendations();
     }
   }, [user]);
   
   const getRecommendations = async () => {
     setIsLoadingRecommendations(true);
     
-    // In a real app, this would be a more sophisticated AI matching algorithm
-    // For now, we'll use the basic recommendations
-    const recommendations = [
-      {
-        id: "factor-jsp",
-        name: "Juried Sound Recording",
-        provider: "FACTOR",
-        matchScore: 92,
-        deadline: "May 30, 2024",
-        amount: "$25,000",
-        description: "For professional musicians with commercial releases to fund album recording costs"
-      },
-      {
-        id: "tac-music",
-        name: "Music Creation and Recording",
-        provider: "Canada Arts Council",
-        matchScore: 86,
-        deadline: "July 1, 2024",
-        amount: "$15,000",
-        description: "For professional artists creating original music in Canada"
-      },
-      {
-        id: "oac-recording",
-        name: "Popular Music Recording",
-        provider: "Ontario Arts Council",
-        matchScore: 78,
-        deadline: "August 20, 2024",
-        amount: "$10,000",
-        description: "For Ontario-based musicians with prior releases"
-      }
+    const recommendations: GrantType[] = [
+      availableGrants[0],
+      availableGrants[2],
+      availableGrants[3]
     ];
     
-    // Store recommendations for use in other components
+    const enhancedRecommendations = recommendations.map((grant, index) => ({
+      ...grant,
+      matchScore: index === 0 ? 92 : index === 1 ? 86 : 78
+    }));
+    
     setSuggestedGrants(recommendations);
     setRecommendedGrants(recommendations);
     
     setIsLoadingRecommendations(false);
   };
 
-  useEffect(() => {
-    if (userProfile) {
-      getRecommendations();
-    }
-  }, [userProfile]);
-
-  const handleStartApplication = (grant) => {
-    // In a real implementation, you would:
-    // 1. Create the application in the database
-    // 2. Redirect to the application form pre-filled with profile data
-    
+  const handleStartApplication = (grant: GrantType) => {
     navigate(`/apply/${grant.id}`);
   };
 

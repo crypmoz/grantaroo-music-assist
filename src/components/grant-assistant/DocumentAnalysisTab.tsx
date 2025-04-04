@@ -132,6 +132,9 @@ export const DocumentAnalysisTab = () => {
       
       // Map the snake_case properties from Supabase to the camelCase properties expected by DocumentItemType
       const formattedDocs: DocumentItemType[] = data.map(doc => {
+        // Safely extract metadata properties with proper type handling
+        const metadata = doc.metadata as Record<string, any> || {};
+        
         return {
           id: doc.id,
           fileName: doc.file_name,
@@ -139,9 +142,9 @@ export const DocumentAnalysisTab = () => {
           filePath: doc.file_path,
           createdAt: new Date(doc.created_at).toLocaleDateString(),
           metadata: {
-            tags: doc.metadata?.tags || [],
-            category: doc.metadata?.category || 'general',
-            size: doc.metadata?.size
+            tags: Array.isArray(metadata.tags) ? metadata.tags : [],
+            category: typeof metadata.category === 'string' ? metadata.category : 'general',
+            size: typeof metadata.size === 'number' ? metadata.size : undefined
           }
         };
       });

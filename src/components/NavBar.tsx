@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, FileText, BookOpen, Brain } from "lucide-react";
 
 export function NavBar() {
   const { isAuthenticated } = useAuth();
@@ -38,14 +38,17 @@ export function NavBar() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[300px] gap-3 p-4">
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
               <li>
                 <NavigationMenuLink asChild>
                   <Link
                     to="/resources"
                     className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                   >
-                    <div className="text-sm font-medium leading-none">Resource Hub</div>
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      <span className="text-sm font-medium leading-none">Grant Resource Hub</span>
+                    </div>
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                       Useful tools and information for grant applicants
                     </p>
@@ -58,9 +61,28 @@ export function NavBar() {
                     to="/faq"
                     className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                   >
-                    <div className="text-sm font-medium leading-none">FAQs</div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium leading-none">FAQs</span>
+                    </div>
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                      Common questions about music grants in Toronto
+                      Common questions about music grants in Canada
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <li className="md:col-span-2">
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/grant-assistant"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium leading-none">AI Grant Assistant</span>
+                    </div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Get personalized AI assistance with your grant application
                     </p>
                   </Link>
                 </NavigationMenuLink>

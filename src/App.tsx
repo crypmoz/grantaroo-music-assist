@@ -34,7 +34,7 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/resources" element={<Resources />} />
-              <Route path="/assistant" element={<GrantAssistant />} />
+              <Route path="/grant-assistant" element={<GrantAssistant />} />
               <Route path="/applications" element={<Applications />} />
               <Route path="/new-application" element={<NewApplication />} />
               <Route path="/apply" element={<GrantApplicationForm />} />

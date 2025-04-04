@@ -1,74 +1,47 @@
 
-import { ReactNode } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AuthRequiredScreen } from "../statistics/AuthRequiredScreen";
-import { useAuth } from "@/context/AuthContext";
-import { Card } from "@/components/ui/card";
-import { useNavigate, useLocation } from "react-router-dom";
-import { BarChart3, FileText, User, Clock, PieChart } from "lucide-react";
+import { LayoutDashboard, FileText, Users, BarChart, CircleDollarSign, Brain } from "lucide-react";
+import { ReactNode, useState } from "react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Get the current tab from URL or default to overview
-  const getTabFromUrl = () => {
-    const searchParams = new URLSearchParams(location.search);
-    return searchParams.get("tab") || "overview";
-  };
-  
-  const currentTab = getTabFromUrl();
-  
-  const handleTabChange = (value: string) => {
-    // Update URL with the selected tab
-    navigate(`/dashboard?tab=${value}`);
-  };
-  
-  if (!isAuthenticated) {
-    return (
-      <div className="container mx-auto py-10">
-        <Card className="p-8">
-          <AuthRequiredScreen onSignInClick={() => {}} />
-        </Card>
-      </div>
-    );
-  }
+  const [activeTab, setActiveTab] = useState("overview");
 
   return (
-    <div className="container mx-auto py-10">
-      <Tabs
-        defaultValue="overview"
-        value={currentTab}
-        onValueChange={handleTabChange}
-        className="space-y-4"
-      >
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 lg:w-[600px]">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Overview</span>
-          </TabsTrigger>
-          <TabsTrigger value="applications" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span className="hidden sm:inline">Applications</span>
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            <span className="hidden sm:inline">Profile</span>
-          </TabsTrigger>
-          <TabsTrigger value="statistics" className="flex items-center gap-2">
-            <PieChart className="h-4 w-4" />
-            <span className="hidden sm:inline">Statistics</span>
-          </TabsTrigger>
-          <TabsTrigger value="documents" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Documents</span>
-          </TabsTrigger>
-        </TabsList>
+    <div className="container mx-auto px-4 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold tracking-tight">Grant Writing Dashboard</h1>
+      </div>
+      
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+        <div className="border-b pb-2 mb-4">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+            <TabsTrigger value="overview" className="py-2.5 flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              <span className="hidden md:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="recommendations" className="py-2.5 flex items-center gap-2">
+              <CircleDollarSign className="h-4 w-4" />
+              <span className="hidden md:inline">Recommended Grants</span>
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="py-2.5 flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden md:inline">Artist Profile</span>
+            </TabsTrigger>
+            <TabsTrigger value="applications" className="py-2.5 flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              <span className="hidden md:inline">AI Assistant</span>
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="py-2.5 flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden md:inline">Documents</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        
         {children}
       </Tabs>
     </div>

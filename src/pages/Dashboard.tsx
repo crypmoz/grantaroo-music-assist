@@ -3,11 +3,11 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import { DashboardApplications } from "@/components/dashboard/DashboardApplications";
+import { GrantApplicationAssistant } from "@/components/dashboard/GrantApplicationAssistant";
 import { DashboardProfile } from "@/components/dashboard/DashboardProfile";
-import { DashboardStatistics } from "@/components/dashboard/DashboardStatistics";
+import { GrantRecommendations } from "@/components/dashboard/GrantRecommendations";
 import { DocumentManager } from "@/components/dashboard/DocumentManager";
-import { DocumentStatistics } from "@/components/dashboard/DocumentStatistics";
+import { SuccessfulExamples } from "@/components/dashboard/SuccessfulExamples";
 import { TabsContent } from "@/components/ui/tabs";
 
 const Dashboard = () => {
@@ -17,12 +17,12 @@ const Dashboard = () => {
       <main className="flex-1 py-6 pb-16">
         <DashboardLayout>
           <DashboardOverview />
-          <DashboardApplications />
+          <GrantRecommendations />
           <DashboardProfile />
-          <DashboardStatistics />
+          <GrantApplicationAssistant />
           <TabsContent value="documents" className="space-y-4 animate-in">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DocumentStatistics />
+              <SuccessfulExamples />
               <DocumentManager />
             </div>
           </TabsContent>

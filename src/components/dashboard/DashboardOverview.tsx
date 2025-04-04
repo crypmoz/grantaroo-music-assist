@@ -71,19 +71,19 @@ export const DashboardOverview = () => {
 
   return (
     <TabsContent value="overview" className="pt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Quick stats cards */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xl flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Applications
+              Your Applications
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold mb-3">{recentApplications.length}</div>
             <Link to="/applications">
-              <Button variant="outline" className="w-full">View All Applications</Button>
+              <Button variant="outline" className="w-full">View Applications</Button>
             </Link>
           </CardContent>
         </Card>
@@ -92,25 +92,16 @@ export const DashboardOverview = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-xl flex items-center gap-2">
               <Award className="h-5 w-5 text-primary" />
-              Subscription
+              Find Grants
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-medium mb-3">
-              {isPaidUser ? (
-                <span className="text-green-600">Premium</span>
-              ) : (
-                <span className="text-amber-600">Free</span>
-              )}
-            </div>
-            {!isPaidUser && (
-              <Button 
-                onClick={() => window.location.href = '/assistant'} 
-                className="w-full"
-              >
-                Upgrade to Premium
-              </Button>
-            )}
+            <p className="text-muted-foreground mb-3 text-sm">
+              Discover grants that match your profile and project
+            </p>
+            <Link to="/grant-assistant">
+              <Button className="w-full">Browse Grants</Button>
+            </Link>
           </CardContent>
         </Card>
         
@@ -118,14 +109,14 @@ export const DashboardOverview = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-xl flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Grant Assistant
+              AI Assistant
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {isPaidUser ? (
               <>
                 <p className="text-muted-foreground text-sm">
-                  Your AI-powered grant writing assistant is ready to help.
+                  Get AI help with your grant applications
                 </p>
                 <Link to="/assistant">
                   <Button className="w-full">Open Assistant</Button>

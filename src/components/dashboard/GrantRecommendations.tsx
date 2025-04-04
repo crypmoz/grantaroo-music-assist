@@ -44,7 +44,7 @@ export const GrantRecommendations = () => {
 
   const handleStartApplication = (grantId: string) => {
     if (isAuthenticated) {
-      navigate(`/grant-assistant?grantId=${grantId}`);
+      navigate(`/apply?grantId=${grantId}`);
     } else {
       navigate("/grant-assistant");
     }
@@ -55,7 +55,7 @@ export const GrantRecommendations = () => {
       <div className="grid gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold tracking-tight">
-            Recommended Grants For You
+            Recommended Grants
           </h2>
           <Button variant="outline" onClick={() => navigate("/grant-assistant")}>
             Find More Grants
@@ -92,7 +92,7 @@ export const GrantRecommendations = () => {
                   className="w-full" 
                   onClick={() => handleStartApplication(grant.id)}
                 >
-                  Start Application
+                  Apply Now
                 </Button>
               </CardFooter>
             </Card>

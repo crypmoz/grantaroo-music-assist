@@ -6,25 +6,45 @@ import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { GrantRecommendations } from "@/components/dashboard/GrantRecommendations";
 import { DashboardProfile } from "@/components/dashboard/DashboardProfile";
 import { GrantApplicationAssistant } from "@/components/dashboard/GrantApplicationAssistant";
-import { DocumentManager } from "@/components/dashboard/DocumentManager";
-import { SuccessfulExamples } from "@/components/dashboard/SuccessfulExamples";
+import { DashboardApplications } from "@/components/dashboard/DashboardApplications";
 import { TabsContent } from "@/components/ui/tabs";
+import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 py-6 pb-16">
         <DashboardLayout>
-          <DashboardOverview />
-          <GrantRecommendations />
-          <DashboardProfile />
-          <GrantApplicationAssistant />
-          <TabsContent value="documents" className="space-y-4 animate-in">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <SuccessfulExamples />
-              <DocumentManager />
-            </div>
+          <TabsContent value="overview" className="space-y-4 animate-in">
+            <DashboardOverview />
+          </TabsContent>
+          
+          <TabsContent value="profile" className="animate-in">
+            <DashboardProfile />
+          </TabsContent>
+          
+          <TabsContent value="recommendations" className="animate-in">
+            <GrantRecommendations />
+          </TabsContent>
+          
+          <TabsContent value="applications" className="animate-in">
+            <DashboardApplications />
+          </TabsContent>
+          
+          <TabsContent value="assistant" className="animate-in">
+            <GrantApplicationAssistant />
           </TabsContent>
         </DashboardLayout>
       </main>

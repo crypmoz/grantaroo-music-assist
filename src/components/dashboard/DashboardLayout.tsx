@@ -13,7 +13,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <div className="container mx-auto px-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold tracking-tight">Your Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Grant Application Portal</h1>
       </div>
       
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
@@ -21,23 +21,23 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
             <TabsTrigger value="overview" className="py-2.5 flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
-              <span className="hidden md:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="recommendations" className="py-2.5 flex items-center gap-2">
-              <Award className="h-4 w-4" />
-              <span className="hidden md:inline">Find Grants</span>
+              <span className="hidden md:inline">Dashboard</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="py-2.5 flex items-center gap-2">
               <User className="h-4 w-4" />
               <span className="hidden md:inline">My Profile</span>
             </TabsTrigger>
+            <TabsTrigger value="recommendations" className="py-2.5 flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              <span className="hidden md:inline">Find Grants</span>
+            </TabsTrigger>
             <TabsTrigger value="applications" className="py-2.5 flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden md:inline">My Applications</span>
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="py-2.5 flex items-center gap-2">
               <Brain className="h-4 w-4" />
               <span className="hidden md:inline">AI Assistant</span>
-            </TabsTrigger>
-            <TabsTrigger value="documents" className="py-2.5 flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              <span className="hidden md:inline">Documents</span>
             </TabsTrigger>
           </TabsList>
         </div>
